@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SheetMusic++</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css') }}">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+</head>
+
+<body>
+
+    <section class="hero is-primary is-fullheight">
+  <!-- Hero head: will stick at the top -->
+  <div class="hero-head">
+    <header class="navbar">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item">
+            <h1 class="title">
+                SheetMusic++
+             </h1>
+          </a>
+          <span class="navbar-burger burger" data-target="navbarMenuHeroC">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+        <div id="navbarMenuHeroC" class="navbar-menu">
+          <div class="navbar-end">
+            <a class="navbar-item is-active" href="www.sheetmusicplusplus.com">
+              Home
+            </a>
+            <a class="navbar-item">
+              About
+            </a>
+            <a class="navbar-item" href="https://www.mdpi.com/2076-3417/8/4/606/htm">
+              How this works
+            </a>
+            <span class="navbar-item">
+              <a class="button is-success is-inverted" style="cursor: help" href="https://docs.google.com/presentation/d/1cBwwIyQRNSbkLb3QtFb3_CbNbq21ziNBL3SZFKCbBTU/edit#slide=id.gcaafe276d4_2_41">
+                <span class="icon">
+                  <i class="fas fa-info-circle"></i>
+                </span>
+                <span>Help</span>
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <!-- Hero content: will be in the middle -->
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <br>
+        <nav class="level-center">
+          <div class="level-item has-text-centered">
+            <div>
+              <br>
+             <form action="{{ url_for('root')}}">
+                <input class="button is-info is-centered" type="submit" value="Analyze another piece of sheet music">
+            </form>
+            <form action="{{ url_for('download')}}">
+                <input style="margin-top:25px" class="button is-info is-centered" type="submit" value="Download my LilyPond">
+            </form>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+        </nav>
+
+    </div>
+  </div>
+
+</section>
+
+</body>
+</html>
