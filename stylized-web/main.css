@@ -1,66 +1,104 @@
+
+/* ----------------------
+   GLOBAL
+---------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
 :root {
-    --primary-color: #eee;
-    --secondary-color: #000;
-    --tertiary-color: #333;
+    --light: #eeeeee;
+    --dark: #222222;
+    --primary-color: #25438a;
+    --secondary-color: #23366d;
+    --tertiary-color: #142349;
 
-    --nav-padding: 20px;
-
-
-    --regular-font: Helvetica, Arial, Helvetica, sans-serif;
+    --regular-font: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
 html {
     height: 100%;
 }
 
-body {
-    background-color: var(--primary-color);
-    /* height: 100%; */
-    margin: 20pt;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
+section.hero.is-light, section.hero.is-dark {
+    background-color: var(--light);
+}
 
+body, button, input, select, textarea {
     font-family: var(--regular-font);
-    
 }
 
-body * {
-    width: 100%;
-    /* flex-basis: 20vw; */
+.title, .subtitle {
+    word-break: keep-all;
 }
 
+/* ----------------------
+   NAVBAR
+---------------------- */
+.hero .navbar {
+    background-color: var(--primary-color);
+}
 
+.navbar-brand > .navbar-item {
+    overflow: visible;
+    display: inline-block;
+}
 
-header, header a {
-    font-size: 7vh;
-    font-weight: bold;
+.navbar-brand > .navbar-item > h1 {
+    display: flex;
+    align-items: center;
+}
+
+#logo-image {
+    margin-right: 10px;
+}
+
+#main-logo {
+    height: 100px;
+}
+
+.navbar-menu a {
     text-transform: uppercase;
-    text-align: center;
-    text-decoration: none;
-    color: var(--secondary-color);
+    font-weight: bold;
 }
 
-header a:hover {
-    color: var(--tertiary-color);
+.hero.is-light .title {
+    color: var(--light);
 }
 
-article {
-    /* width: 100%; */
+/* Changes hover background color in navbar */
+.hero.is-light .navbar-link.is-active, .hero.is-light .navbar-link:hover, .hero.is-light a.navbar-item.is-active, .hero.is-light a.navbar-item:hover {
+    background-color: var(--light);
 }
 
-#image-file + label {
-	cursor: pointer;
+/* Excludes logo from changing on hover */
+.hero.is-light .navbar-brand > a.navbar-item:hover {
+    background-color: transparent;
 }
 
-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    padding: 5px;
-    background-color: var(--secondary-color);
+/* Changes text color in navbar */
+.hero.is-light a:not(.button):not(.dropdown-item):not(.tag):not(.pagination-link.is-current), .hero.is-light strong {
+    color: var(--light);
+}
+
+/* Changes hover & current item text color in navbar */
+.hero.is-light a:not(.button):not(.dropdown-item):not(.tag):not(.pagination-link.is-current):hover, .hero.is-light a:not(.button):not(.dropdown-item):not(.tag):not(.pagination-link.is-current).is-active {
     color: var(--primary-color);
-    font-size: 8pt;
-    text-align: center;
+}
+
+/* ----------------------
+   BUTTONS
+---------------------- */
+.button, .button.is-primary, .button.is-info {
+    height: 3em;
+    border-radius: 1.5em;
+    border: 3px solid var(--primary-color);
+    color: var(--light);
+    background-color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.button:hover, .button.is-primary:hover, .button.is-info:hover {
+    border: 3px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: var(--light);
 }
