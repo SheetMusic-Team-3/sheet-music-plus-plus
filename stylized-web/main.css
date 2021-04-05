@@ -1,0 +1,66 @@
+:root {
+    --primary-color: #eee;
+    --secondary-color: #000;
+    --tertiary-color: #333;
+
+    --nav-padding: 20px;
+
+
+    --regular-font: Helvetica, Arial, Helvetica, sans-serif;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    background-color: var(--primary-color);
+    /* height: 100%; */
+    margin: 20pt;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+
+    font-family: var(--regular-font);
+    
+}
+
+body * {
+    width: 100%;
+    /* flex-basis: 20vw; */
+}
+
+
+
+header, header a {
+    font-size: 7vh;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    color: var(--secondary-color);
+}
+
+header a:hover {
+    color: var(--tertiary-color);
+}
+
+article {
+    /* width: 100%; */
+}
+
+#image-file + label {
+	cursor: pointer;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 5px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    font-size: 8pt;
+    text-align: center;
+}
