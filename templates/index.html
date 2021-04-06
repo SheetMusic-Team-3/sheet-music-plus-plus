@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SheetMusic++</title>
-    <!-- Includes both relative links (to run locally) and variable links (to run on server) -->    
+    <!-- Includes both relative links (to run locally) and variable links (to run on server) -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='graphics/logo.svg') }}" type="image/svg+xml">
     <link rel="shortcut icon" href="../static/graphics/logo.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
@@ -57,7 +57,7 @@
         <br/>
         Upload an image of sheet music to produce a LilyPond replica.
       </h2>
-     <form action="{{ url_for('result')}}" method="post" enctype="multipart/form-data">
+     <form action="{{ url_for('predict')}}" method="post" enctype="multipart/form-data">
         <div id="file-js-example" class="file has-name is-centered is-boxed">
           <label class="file-label">
             <input class="file-input" type="file" name="file" accept=".jpg, .jpeg, .png">
