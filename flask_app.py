@@ -38,7 +38,7 @@ def root():
     return render_template('index.html')
 
 
-@app.route('/predict', methods=['GET', 'POST'])
+@app.route('/result', methods=['GET', 'POST'])
 def predict():
 
     os.chdir(r'/home/hilnels')
