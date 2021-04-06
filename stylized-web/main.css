@@ -6,12 +6,15 @@
 
 :root {
     --light: #eeeeee;
+    --medium: #888888;
     --dark: #222222;
     --primary-color: #25438a;
     --secondary-color: #23366d;
     --tertiary-color: #142349;
 
     --regular-font: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
+
+    --progress-stroke: .15em;
 }
 
 html {
@@ -29,6 +32,7 @@ body, button, input, select, textarea {
 .title, .subtitle {
     word-break: keep-all;
 }
+
 
 /* ----------------------
    NAVBAR
@@ -84,6 +88,7 @@ body, button, input, select, textarea {
     color: var(--primary-color);
 }
 
+
 /* ----------------------
    BUTTONS
 ---------------------- */
@@ -101,4 +106,41 @@ body, button, input, select, textarea {
     border: 3px solid var(--primary-color);
     color: var(--primary-color);
     background-color: var(--light);
+}
+
+
+/* ----------------------
+   FOOTER
+---------------------- */
+#progress-circles {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+svg.progress-step {
+    margin: var(--progress-stroke);
+    width: 2em;
+    height: 2em;
+}
+
+svg.progress-step line {
+    stroke: var(--medium);
+    stroke-width: var(--progress-stroke);
+}
+
+svg.progress-step circle {
+    fill: var(--light);
+    stroke: var(--medium);
+    stroke-width: calc(var(--progress-stroke) * 2);
+    clip-path: circle(50%);
+}
+
+svg.progress-step.completed circle {
+    fill: var(--medium);
+}
+
+svg.progress-step.current circle {
+    fill: var(--primary-color);
+    stroke: var(--primary-color);
 }
