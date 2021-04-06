@@ -1,4 +1,5 @@
-from flask import Flask, flash, request,send_from_directory,render_template, redirect, url_for, send_file
+from flask import Flask, flash, request, send_from_directory
+from flask import render_template, redirect, send_file
 import os
 import tensorflow as tf
 from tensorflow.python.framework import ops
@@ -21,6 +22,7 @@ PATH = ""
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -30,11 +32,13 @@ def allowed_file(filename):
 def send_img(filename):
 	return send_from_directory('', filename)
 
+
 @app.route("/")
 def root():
-	return render_template('demo-index.html')
+    return render_template('index.html')
 
-@app.route('/predict', methods = ['GET', 'POST'])
+
+@app.route('/predict', methods=['GET', 'POST'])
 def predict():
 
     os.chdir(r'/home/hilnels')
@@ -68,7 +72,7 @@ def predict():
         sess = tfc.InteractiveSession()
 
         # Read the dictionary
-        dict_file = open(voc_path,'r')
+        dict_file = open(voc_path, 'r')
         dict_list = dict_file.read().splitlines()
         int2word = dict()
         for word in dict_list:
@@ -79,7 +83,7 @@ def predict():
         # Restore weights
         tfc.disable_v2_behavior()
         saver = tfc.train.import_meta_graph("semantic_model.meta")
-        saver.restore(sess,"semantic_model.meta"[:-5])
+        saver.restore(sess, "semantic_model.meta"[:-5])
 
         graph = ops.get_default_graph()
 
@@ -92,16 +96,17 @@ def predict():
         logits = ops.get_collection("logits")[0]
 
         # Constants that are saved inside the model itself
-        WIDTH_REDUCTION, HEIGHT = sess.run([width_reduction_tensor, height_tensor])
+        WIDTH_REDUCTION, HEIGHT = \
+            sess.run([width_reduction_tensor, height_tensor])
 
         decoded, _ = tf.nn.ctc_greedy_decoder(logits, seq_len)
 
         file_name = "/home/hilnels/mysite/.uploads/" + filename
-        image = cv2.imread(file_name,False)
+        image = cv2.imread(file_name, False)
         image = ctc_utils.resize(image, HEIGHT)
         image = ctc_utils.normalize(image)
-        image = np.asarray(image).reshape(1,image.shape[0],image.shape[1],1)
-        seq_lengths = [ image.shape[2] / WIDTH_REDUCTION ]
+        image = np.asarray(image).reshape(1, image.shape[0], image.shape[1], 1)
+        seq_lengths = [image.shape[2] / WIDTH_REDUCTION]
         prediction = sess.run(decoded,
                               feed_dict={
                                   input: image,
@@ -120,7 +125,8 @@ def predict():
 
         print(predict_to_parse)
 
-        lilyPond = sheet_music_parser.generate_music(predict_to_parse, filename)
+        lilyPond = \
+            sheet_music_parser.generate_music(predict_to_parse, filename)
 
         os.chdir(r'/home/hilnels/mysite/.downloads')
         lilyFile = filename + ".ly"
@@ -130,7 +136,8 @@ def predict():
         global PATH
         PATH = '/home/hilnels/mysite/.downloads/' + lilyFile
 
-    return render_template('demo-result.html')
+    return render_template('result.html')
+
 
 @app.route("/download")
 def download():
@@ -145,16 +152,13 @@ def download():
     return send_file(PATH, as_attachment=True)
 
 
-if __name__=="__main__":
-	app.run()
-
-
-
+if __name__ == "__main__":
+    app.run()
 
 
 """
 @app.route('/')
 @app.route('/index')
 def index():
-	return '[testing]'
+    return '[testing]'
 """
