@@ -6,7 +6,7 @@
 
 :root {
     --light: #eeeeee;
-    --medium: #888888;
+    --medium: #bbbbbb;
     --dark: #222222;
     --primary-color: #25438a;
     --secondary-color: #23366d;
@@ -14,15 +14,15 @@
 
     --regular-font: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
 
-    --progress-stroke: .15em;
+    --progress-stroke: .1em;
 }
 
 html {
     height: 100%;
 }
-
-section.hero.is-light, section.hero.is-dark {
+.hero.is-light, section.hero.is-light, section.hero.is-dark {
     background-color: var(--light);
+    color: var(--dark);
 }
 
 body, button, input, select, textarea {
@@ -31,6 +31,14 @@ body, button, input, select, textarea {
 
 .title, .subtitle {
     word-break: keep-all;
+}
+
+.hero.is-light .subtitle a:not(.button), .hero.is-light .subtitle strong, .hero.is-light .subtitle {
+    color: var(--dark)
+}
+
+.hero-body .subtitle {
+    margin-bottom: 0;
 }
 
 
@@ -90,6 +98,41 @@ body, button, input, select, textarea {
 
 
 /* ----------------------
+   FILE UPLOAD
+---------------------- */
+.hero-body .file.has-name {
+    margin: 3em 0;
+}
+
+.file-cta {
+    background-color: var(--light);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.file-label:hover .file-cta {
+    background-color: var(--primary-color);
+    color: var(--light);
+}
+
+.file-name {
+    background-color: var(--light);
+    text-align: center;
+    color: var(--dark);
+}
+
+.file-cta {
+    border-color: var(--medium);
+    border-width: var(--progress-stroke);
+}
+.file-name, .file.is-boxed.has-name .file-name {
+    border-color: var(--medium);
+    border-width: 0 var(--progress-stroke) var(--progress-stroke);
+}
+
+
+
+/* ----------------------
    BUTTONS
 ---------------------- */
 .button, .button.is-primary, .button.is-info {
@@ -120,8 +163,8 @@ body, button, input, select, textarea {
 
 svg.progress-step {
     margin: var(--progress-stroke);
-    width: 2em;
-    height: 2em;
+    width: 1.75em;
+    height: 1.75em;
 }
 
 svg.progress-step line {

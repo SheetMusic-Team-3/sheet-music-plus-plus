@@ -7,7 +7,7 @@ This app is deployed with Python Anywhere and can be accessed via the following 
 The app is run using the following process:
 1. Use the file browser to slect a .JPG or .PNG image
 1. Click the "Analyze my sheet music!" button
-1. When the process is complete, click "Download LilyPond file"
+1. When the process is complete, click "Download my LilyPond"
 1. This file can be edited using any plain text editor. To compile it into sheet music, either [download LilyPond](http://lilypond.org/download.html) and install it on your personal machine or copy and paste the code into an online editor such as [LilyBin](http://lilybin.com) or [HackLily](https://hacklily.org)
 
 ## Known Bugs
