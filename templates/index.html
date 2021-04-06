@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SheetMusic++</title>
     <link rel="shortcut icon" href="logo.svg" type="image/svg+xml">
-    <!--<link rel="stylesheet" href="bulma.css">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!--<link rel="stylesheet" href="bulma.css">-->
     <!--<link rel="stylesheet" href="main.css">-->
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </head>
@@ -50,7 +50,7 @@
   <!-- Hero content: will be in the middle -->
   <div class="hero-body">
     <div class="container has-text-centered">
-      <img id="main-logo" src="logo.svg">
+      <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}">
       <h2 class="subtitle">
         <strong>Welcome to SheetMusic++</strong>
         <br/>
