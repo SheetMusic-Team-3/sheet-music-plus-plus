@@ -1,0 +1,189 @@
+
+/* ----------------------
+   GLOBAL
+---------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+:root {
+    --light: #eeeeee;
+    --medium: #bbbbbb;
+    --dark: #222222;
+    --primary-color: #25438a;
+    --secondary-color: #23366d;
+    --tertiary-color: #142349;
+
+    --regular-font: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
+
+    --progress-stroke: .1em;
+}
+
+html {
+    height: 100%;
+}
+.hero.is-light, section.hero.is-light, section.hero.is-dark {
+    background-color: var(--light);
+    color: var(--dark);
+}
+
+body, button, input, select, textarea {
+    font-family: var(--regular-font);
+}
+
+.title, .subtitle {
+    word-break: keep-all;
+}
+
+.hero.is-light .subtitle a:not(.button), .hero.is-light .subtitle strong, .hero.is-light .subtitle {
+    color: var(--dark)
+}
+
+.hero-body .subtitle {
+    margin-bottom: 0;
+}
+
+
+/* ----------------------
+   NAVBAR
+---------------------- */
+.hero .navbar {
+    background-color: var(--primary-color);
+}
+
+.navbar-brand > .navbar-item {
+    overflow: visible;
+    display: inline-block;
+}
+
+.navbar-brand > .navbar-item > h1 {
+    display: flex;
+    align-items: center;
+}
+
+#logo-image {
+    margin-right: 10px;
+}
+
+#main-logo {
+    height: 100px;
+}
+
+.navbar-menu a {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.hero.is-light .title {
+    color: var(--light);
+}
+
+/* Changes hover background color in navbar */
+.hero.is-light .navbar-link.is-active, .hero.is-light .navbar-link:hover, .hero.is-light a.navbar-item.is-active, .hero.is-light a.navbar-item:hover {
+    background-color: var(--light);
+}
+
+/* Excludes logo from changing on hover */
+.hero.is-light .navbar-brand > a.navbar-item:hover {
+    background-color: transparent;
+}
+
+/* Changes text color in navbar */
+.hero.is-light a:not(.button):not(.dropdown-item):not(.tag):not(.pagination-link.is-current), .hero.is-light strong {
+    color: var(--light);
+}
+
+/* Changes hover & current item text color in navbar */
+.hero.is-light a:not(.button):not(.dropdown-item):not(.tag):not(.pagination-link.is-current):hover, .hero.is-light a:not(.button):not(.dropdown-item):not(.tag):not(.pagination-link.is-current).is-active {
+    color: var(--primary-color);
+}
+
+
+/* ----------------------
+   FILE UPLOAD
+---------------------- */
+.hero-body .file.has-name {
+    margin: 3em 0;
+}
+
+.file-cta {
+    background-color: var(--light);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.file-label:hover .file-cta {
+    background-color: var(--primary-color);
+    color: var(--light);
+}
+
+.file-name {
+    background-color: var(--light);
+    text-align: center;
+    color: var(--dark);
+}
+
+.file-cta {
+    border-color: var(--medium);
+    border-width: var(--progress-stroke);
+}
+.file-name, .file.is-boxed.has-name .file-name {
+    border-color: var(--medium);
+    border-width: 0 var(--progress-stroke) var(--progress-stroke);
+}
+
+
+
+/* ----------------------
+   BUTTONS
+---------------------- */
+.button, .button.is-primary, .button.is-info {
+    height: 3em;
+    border-radius: 1.5em;
+    border: 3px solid var(--primary-color);
+    color: var(--light);
+    background-color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.button:hover, .button.is-primary:hover, .button.is-info:hover {
+    border: 3px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: var(--light);
+}
+
+
+/* ----------------------
+   FOOTER
+---------------------- */
+#progress-circles {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+svg.progress-step {
+    margin: var(--progress-stroke);
+    width: 1.75em;
+    height: 1.75em;
+}
+
+svg.progress-step line {
+    stroke: var(--medium);
+    stroke-width: var(--progress-stroke);
+}
+
+svg.progress-step circle {
+    fill: var(--light);
+    stroke: var(--medium);
+    stroke-width: calc(var(--progress-stroke) * 2);
+    clip-path: circle(50%);
+}
+
+svg.progress-step.completed circle {
+    fill: var(--medium);
+}
+
+svg.progress-step.current circle {
+    fill: var(--primary-color);
+    stroke: var(--primary-color);
+}
