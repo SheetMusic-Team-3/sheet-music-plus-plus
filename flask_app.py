@@ -6,8 +6,6 @@ from tensorflow.python.framework import ops
 import tensorflow.compat.v1 as tfc
 import cv2
 import numpy as np
-from zipfile import ZipFile
-from PIL import Image, ImageFont, ImageDraw
 from scripts import ctc_utils
 from werkzeug.utils import secure_filename
 from scripts import sheet_music_parser
@@ -66,7 +64,6 @@ def predict():
             # return redirect(url_for('predict', filename=filename))
 
         voc_path = "/home/hilnels/mysite/scripts/vocabulary_semantic.txt"
-        model_path = "/home/hilnels/semantic_model.meta"
 
         ops.reset_default_graph()
         sess = tfc.InteractiveSession()
