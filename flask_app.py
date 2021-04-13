@@ -8,9 +8,9 @@ import cv2
 import numpy as np
 from zipfile import ZipFile
 from PIL import Image, ImageFont, ImageDraw
-import ctc_utils
+from scripts import ctc_utils
 from werkzeug.utils import secure_filename
-import sheet_music_parser
+from scripts import sheet_music_parser
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -65,8 +65,8 @@ def predict():
             print(filename)
             # return redirect(url_for('predict', filename=filename))
 
-        voc_path = "/home/hilnels/mysite/vocabulary_semantic.txt"
-        model_path = "/home/hilnels/mysite/semantic_model.meta"
+        voc_path = "/home/hilnels/mysite/scripts/vocabulary_semantic.txt"
+        model_path = "/home/hilnels/semantic_model.meta"
 
         ops.reset_default_graph()
         sess = tfc.InteractiveSession()
