@@ -167,7 +167,8 @@ def parser(toparse):
             return "\\compressFullBarRests \n \t R1*" + divided_string[1] + "\n "
 
     elif divided_string[0] == "barline":
-        return " "
+        return " \\bar \"|\" "
+        # return " "
 
     elif divided_string[0] == "rest":
         ending = ""

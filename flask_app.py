@@ -9,9 +9,17 @@ import numpy as np
 from scripts import ctc_utils
 from werkzeug.utils import secure_filename
 from scripts import sheet_music_parser
-
+import boto3
+import json
+import env
+import base64
+from PIL import Image
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+AWS_KEY = env.AWS_KEY
+AWS_SECRET = env.AWS_SECRET
+
+client = boto3.client('sagemaker-runtime', region_name='us-east-1', aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET)
 
 UPLOAD_FOLDER = '/home/hilnels/mysite/.uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
@@ -20,6 +28,44 @@ PATH = ""
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+def yolo_endpoint_pred(client, endpoint_name, content_type, body):
+    """ inputs: client -- boto3 sagemaker-runtime client
+                endpoint_name -- AWS endpoint name (string)
+                content_type -- image/jpeg for YOLO (string)
+                body -- request body (image bytes)
+        outputs: a list of dictionaries representing each label
+    """
+    if content_type != "image/jpeg":
+        return "Wrong content type"
+
+    ioc_response = client.invoke_endpoint(
+        EndpointName=endpoint_name,
+        Body=body,
+        ContentType=content_type)
+
+    response = ioc_response["Body"].read()
+    preds = json.loads(response)
+    return preds
+
+def split_to_lines(file_name, preds):
+    """ splits a single image of sheet music into multiple images of each line
+        inputs: file_name -- local path to image (string)
+                preds -- list of dictionaries with the keys: x, y, width, height, conf
+        outputs: a list of cv2 images
+    """
+    pil_img = Image.open(file_name)
+    images = []
+    width, height = pil_img.size
+    for pred in preds:
+        if pred['conf'] > 0.7:
+            left = 0
+            upper = (pred['y'] - pred['height'] / 2) * height
+            right = width
+            lower = (pred['y'] + pred['height'] / 2) * height
+            cropped_im = pil_img.crop((left, upper, right, lower))
+            imcv = np.asarray(cropped_im.convert('L'))
+            images.append(imcv)
+    return images
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -46,6 +92,7 @@ def predict():
     print(currdir)
 
     if request.method == 'POST':
+        print("AWSKEY " + AWS_KEY)
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -65,8 +112,6 @@ def predict():
 
         voc_path = "/home/hilnels/mysite/scripts/vocabulary_semantic.txt"
 
-        ops.reset_default_graph()
-        sess = tfc.InteractiveSession()
 
         # Read the dictionary
         dict_file = open(voc_path, 'r')
@@ -78,47 +123,62 @@ def predict():
         dict_file.close()
 
         # Restore weights
-        tfc.disable_v2_behavior()
-        saver = tfc.train.import_meta_graph("semantic_model.meta")
-        saver.restore(sess, "semantic_model.meta"[:-5])
+        width_reduction = 16
 
-        graph = ops.get_default_graph()
+        file_path = "/home/hilnels/mysite/.uploads/" + filename
 
-        input = graph.get_tensor_by_name("model_input:0")
-        seq_len = graph.get_tensor_by_name("seq_lengths:0")
-        print(seq_len)
-        rnn_keep_prob = graph.get_tensor_by_name("keep_prob:0")
-        height_tensor = graph.get_tensor_by_name("input_height:0")
-        width_reduction_tensor = graph.get_tensor_by_name("width_reduction:0")
-        logits = ops.get_collection("logits")[0]
+        # Read in file_path
+        raw_im = cv2.imread(file_path)
+        retval, buffer = cv2.imencode('.jpg', raw_im)
+        bytes_jpg = base64.b64encode(buffer)
 
-        # Constants that are saved inside the model itself
-        WIDTH_REDUCTION, HEIGHT = \
-            sess.run([width_reduction_tensor, height_tensor])
+        preds = yolo_endpoint_pred(client, "yolov5", "image/jpeg", bytes_jpg)
 
-        decoded, _ = tf.nn.ctc_greedy_decoder(logits, seq_len)
+        preds = sorted(preds, key=lambda k: k['y'])
 
-        file_name = "/home/hilnels/mysite/.uploads/" + filename
-        image = cv2.imread(file_name, False)
-        image = ctc_utils.resize(image, HEIGHT)
-        image = ctc_utils.normalize(image)
-        image = np.asarray(image).reshape(1, image.shape[0], image.shape[1], 1)
-        seq_lengths = [image.shape[2] / WIDTH_REDUCTION]
-        prediction = sess.run(decoded,
-                              feed_dict={
-                                  input: image,
-                                  seq_len: seq_lengths,
-                                  rnn_keep_prob: 1.0
-                              })
-        print(prediction)
+        split_images = split_to_lines(file_path, preds)
 
+        if not split_images:
+            print("NO PREDICTIONS...")
+
+        # output string
         predict_to_parse = ""
 
-        str_predictions = ctc_utils.sparse_tensor_to_strs(prediction)
-        for w in str_predictions[0]:
-            predict_to_parse += int2word[w]
-            predict_to_parse += "\n"
-            print(int2word[w])
+        for image in split_images:
+            image = ctc_utils.resize(image, 128)
+            image = ctc_utils.normalize(image)
+            image = np.asarray(image).reshape(1,image.shape[0],image.shape[1],1)
+            print(image.shape)
+
+            seq_lengths = [ image.shape[2] // width_reduction ]
+
+            body =  json.dumps({"signature_name": "predict", "inputs": {"input": image.tolist(), "seq_len": seq_lengths, "rnn_keep_prob": 1.0}})
+
+            ioc_predictor_endpoint_name = 'semantic'
+            content_type = 'application/json'
+            ioc_response = client.invoke_endpoint(
+                EndpointName=ioc_predictor_endpoint_name,
+                Body=body,
+                ContentType=content_type
+             )
+
+            response = ioc_response["Body"].read()
+
+            data = json.loads(response)
+
+            list_tensor = data["outputs"]["fully_connected/BiasAdd"]
+
+            output = tf.convert_to_tensor(list_tensor, tf.float32)
+
+            decoded, _ = tf.nn.ctc_greedy_decoder(output, seq_lengths)
+
+            result = decoded[0].values
+            str_predictions = result.numpy().tolist()
+            print(str_predictions)
+            for w in str_predictions:
+                predict_to_parse += int2word[w]
+                predict_to_parse += "\n"
+                print(int2word[w])
 
         print(predict_to_parse)
 
@@ -139,7 +199,7 @@ def predict():
 @app.route("/download")
 def download():
 
-    os.chdir(r'/home/hilnels/mysite/.downloads')
+    # os.chdir(r'/home/hilnels/mysite/.downloads')
 
     currdir = os.getcwd()
     print("download")
