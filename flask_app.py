@@ -108,8 +108,8 @@ def confirm():
         if file and allowed_file(file.filename):
             global FILENAME
             FILENAME = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print(filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], FILENAME))
+            print(FILENAME)
 
     return render_template('confirm.html')
 
@@ -186,7 +186,7 @@ def predict():
 
             seq_lengths = [ image.shape[2] // width_reduction ]
 
-            body =  json.dumps({"signature_name": "predict", "inputs": {"input": image.tolist(), "seq_len": seq_lengths, "rnn_keep_prob": 1.0}})
+            body = json.dumps({"signature_name": "predict", "inputs": {"input": image.tolist(), "seq_len": seq_lengths, "rnn_keep_prob": 1.0}})
 
             ioc_predictor_endpoint_name = 'semantic'
             content_type = 'application/json'
@@ -247,7 +247,7 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/help")
+@app.route('/help')
 def help():
     return render_template('help.html')
 
