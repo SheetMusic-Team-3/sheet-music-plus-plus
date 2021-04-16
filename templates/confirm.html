@@ -22,7 +22,6 @@
         <div class="navbar-brand">
           <a class="navbar-item" href="https://www.sheetmusicplusplus.com">
             <h1 class="title">
-              <!-- <img id="logo-image" src="logo.svg"> -->
               <div id="logo-text">SheetMusic++</div>
             </h1>
           </a>
@@ -52,20 +51,19 @@
   <!-- Hero content: will be in the middle -->
   <div class="hero-body">
     <div class="container has-text-centered">
-      <br>
-        <nav class="level-center">
-          <div class="level-item has-text-centered">
-            <div>
-             <form action="https://www.sheetmusicplusplus.com">
-                <input class="button is-centered" type="submit" value="Analyze another piece of sheet music">
-              </form>
-              <form action="{{ url_for('download')}}">
-                <input style="margin-top:25px" class="button is-centered" type="submit" value="Download my LilyPond">
-              </form>
-            </div>
+      <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}">
+      <h2 class="subtitle">
+        Add title
+      </h2>
+      <form action="{{ url_for('predict') }}" method="post">
+        <label class="label">
+          <div class="control">
+            <input class="input" type="text" name="title" placeholder="Piece Title">
           </div>
-          <div class="level-item has-text-centered">
-        </nav>
+        </label>
+        <input class="button secondary" type="submit" value="Upload different image">
+        <input class="button" type="submit" value="Confirm">
+      </form>
 
     </div>
   </div>
@@ -74,9 +72,9 @@
     <div id="progress-circles">
       <svg class="progress-step completed"><circle cx="50%" cy="50%" r="50%"/></svg>
       <svg class="progress-step"><line x1="0%" x2="100%" y1="50%" y2="50%"/></svg>
-      <svg class="progress-step completed"><circle cx="50%" cy="50%" r="50%"/></svg>
-      <svg class="progress-step"><line x1="0%" x2="100%" y1="50%" y2="50%"/></svg>
       <svg class="progress-step current"><circle cx="50%" cy="50%" r="50%"/></svg>
+      <svg class="progress-step"><line x1="0%" x2="100%" y1="50%" y2="50%"/></svg>
+      <svg class="progress-step"><circle cx="50%" cy="50%" r="50%"/></svg>
     </div>
   </div>
 

@@ -135,7 +135,7 @@ body, button, input, select, textarea {
 /* ----------------------
    BUTTONS
 ---------------------- */
-.button, .button.is-primary, .button.is-info {
+.button {
     height: 3em;
     border-radius: 1.5em;
     border: 3px solid var(--primary-color);
@@ -145,10 +145,20 @@ body, button, input, select, textarea {
     font-weight: bold;
 }
 
-.button:hover, .button.is-primary:hover, .button.is-info:hover {
+.button.secondary {
+    border-color: var(--dark);
+    background-color: var(--dark);
+}
+
+.button:hover {
     border: 3px solid var(--primary-color);
     color: var(--primary-color);
     background-color: var(--light);
+}
+
+.button.secondary:hover {
+    border-color: var(--dark);
+    color: var(--dark);
 }
 
 

@@ -6,18 +6,20 @@ This app is deployed with Python Anywhere and can be accessed via the following 
 
 The app is run using the following process:
 1. Use the file browser to slect a .JPG or .PNG image
-2. Click the "Analyze my sheet music!" button
-3. When the process is complete, click "Download my LilyPond"
-4. This file can be edited using any plain text editor. To compile it into sheet music, either [download LilyPond](http://lilypond.org/download.html) and install it on your personal machine or copy and paste the code into an online editor such as [LilyBin](http://lilybin.com) or [HackLily](https://hacklily.org)
+1. Click the "Analyze my sheet music!" button
+1. When the process is complete, click "Download my LilyPond"
+1. This file can be edited using any plain text editor. To compile it into sheet music, either [download LilyPond](http://lilypond.org/download.html) and install it on your personal machine or copy and paste the code into an online editor such as [LilyBin](http://lilybin.com) or [HackLily](https://hacklily.org)
 
 ## Known Bugs
 This app is currently under development, meaning that it has limited functionality. However, some significant bugs that we are aware of and currently working to resolve are:
 1. Since there is currently limited error handling, any invalid images cause the page to redirect to an Internal Server Error 500
-2. Only 1 line of music can be included in the uploaded image; otherwise this leads to an internal server error
-3. Any images for which no notes can be detected cause an internal server error
-4. The output file names are not parsed, so it appears that there is a double file extension (however, this is aesthetic only and does not affect the ability of the LilyPond file to run)
-5. If the results page is accessed via URL without uploading an image first, an internal server error will occur
-6. Overall, the neural network has foundational issues that prevent it from making highly accurate predictions
+1. Only 1 line of music can be included in the uploaded image; otherwise this leads to an internal server error
+1. Any images for which no notes can be detected cause an internal server error
+1. Trying to initiate the process without uploading an image first leads to an internal server error
+1. The output file names are not parsed, so it appears that there is a double file extension (however, this is aesthetic only and does not affect the ability of the LilyPond file to run)
+1. If the results page is accessed via URL without uploading an image first, an internal server error will occur
+1. If the download URL is accessed without completing the upload process, it will download the most recent file
+1. Overall, the neural network has foundational issues that prevent it from making highly accurate predictions
 
 We invite users to report any new issues [here](https://github.com/SheetMusic-Team-3/MVP/issues).
 

@@ -25,6 +25,8 @@ UPLOAD_FOLDER = '/home/hilnels/mysite/.uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 PATH = ""
 
+FILENAME = ""
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -72,18 +74,48 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# Does this have a purpose???
 @app.route('/img/<filename>')
 def send_img(filename):
 	return send_from_directory('', filename)
 
 
-@app.route("/")
+@app.route('/')
 def root():
     return render_template('index.html')
 
 
+@app.route('/confirm', methods=['GET', 'POST'])
+def confirm():
+    os.chdir(r'/home/hilnels')
+
+    currdir = os.getcwd()
+    print("predict")
+    print(currdir)
+
+    if request.method == 'POST':
+        print('AWSKEY ' + AWS_KEY)
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            global FILENAME
+            FILENAME = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            print(filename)
+
+    return render_template('confirm.html')
+
 @app.route('/result', methods=['GET', 'POST'])
 def predict():
+    filename = FILENAME
 
     os.chdir(r'/home/hilnels')
 
@@ -92,6 +124,7 @@ def predict():
     print(currdir)
 
     if request.method == 'POST':
+        """
         print("AWSKEY " + AWS_KEY)
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -109,9 +142,10 @@ def predict():
             print("before line 136?")
             print(filename)
             # return redirect(url_for('predict', filename=filename))
+        """
+
 
         voc_path = "/home/hilnels/mysite/scripts/vocabulary_semantic.txt"
-
 
         # Read the dictionary
         dict_file = open(voc_path, 'r')
@@ -132,7 +166,7 @@ def predict():
         retval, buffer = cv2.imencode('.jpg', raw_im)
         bytes_jpg = base64.b64encode(buffer)
 
-        preds = yolo_endpoint_pred(client, "yolov5", "image/jpeg", bytes_jpg)
+        preds = yolo_endpoint_pred(client, 'yolov5', 'image/jpeg', bytes_jpg)
 
         preds = sorted(preds, key=lambda k: k['y'])
 
@@ -202,25 +236,23 @@ def download():
     # os.chdir(r'/home/hilnels/mysite/.downloads')
 
     currdir = os.getcwd()
-    print("download")
+    print('download')
     print(currdir)
 
     global PATH
     return send_file(PATH, as_attachment=True)
 
-@app.route("/about")
+@app.route('/about')
 def about():
-
     return render_template('about.html')
 
 
-@app.route("/help")
+@app.route('/help")
 def help():
-
     return render_template('help.html')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run()
 
 
