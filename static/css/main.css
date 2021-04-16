@@ -101,7 +101,7 @@ body, button, input, select, textarea {
    FILE UPLOAD
 ---------------------- */
 .hero-body .file.has-name {
-    margin: 3em 0;
+    margin: 3rem 0;
 }
 
 .file-cta {
@@ -130,15 +130,43 @@ body, button, input, select, textarea {
     border-width: 0 var(--progress-stroke) var(--progress-stroke);
 }
 
+/* ----------------------
+   IMAGE CONFIRMATION
+---------------------- */
+#confirmation-title {
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+#confirmation-title input.input {
+    height: 2.5rem;
+    padding: 0;
+    margin-top: 0.5rem;
+    border: 1px solid var(--medium);
+    border-radius: 1.25rem;
+    text-align: center;
+
+}
+
+#confirmation-image {
+    max-width: 80%;
+    max-height: 50vh;
+    margin: 3rem 0;
+    object-fit: contain;
+    border: 3px solid var(--dark);
+    border-radius: 1rem;
+    color: var(--dark);
+}
 
 
 /* ----------------------
    BUTTONS
 ---------------------- */
 .button {
-    height: 3em;
-    border-radius: 1.5em;
+    height: 3rem;
     border: 3px solid var(--primary-color);
+    border-radius: 1.5rem;
     color: var(--light);
     background-color: var(--primary-color);
     font-size: 1rem;
@@ -173,8 +201,8 @@ body, button, input, select, textarea {
 
 svg.progress-step {
     margin: var(--progress-stroke);
-    width: 1.75em;
-    height: 1.75em;
+    width: 1.75rem;
+    height: 1.75rem;
 }
 
 svg.progress-step line {

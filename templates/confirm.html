@@ -51,16 +51,17 @@
   <!-- Hero content: will be in the middle -->
   <div class="hero-body">
     <div class="container has-text-centered">
-      <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}">
       <h2 class="subtitle">
-        Add title
+        Please add a title to your piece and ensure that it is oriented the correct way.
       </h2>
       <form action="{{ url_for('predict') }}" method="post">
-        <label class="label">
+        <label id="confirmation-title" class="label">
           <div class="control">
             <input class="input" type="text" name="title" placeholder="Piece Title">
           </div>
         </label>
+        <img id="confirmation-image" src="{{ filename }}">
+        <br/>
         <input class="button secondary" type="submit" value="Upload different image">
         <input class="button" type="submit" value="Confirm">
       </form>

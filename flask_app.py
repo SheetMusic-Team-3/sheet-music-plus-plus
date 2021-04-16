@@ -23,9 +23,11 @@ client = boto3.client('sagemaker-runtime', region_name='us-east-1', aws_access_k
 
 UPLOAD_FOLDER = '/home/hilnels/mysite/.uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-PATH = ""
+CONFIDENCE_THRESHOLD = 0.7
+VOCAB_PATH = '/home/hilnels/mysite/scripts/vocabulary_semantic.txt'
+DOWNLOAD_PATH = '/home/hilnels/mysite/.downloads/'
 
-FILENAME = ""
+FILENAME = ''
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -59,7 +61,7 @@ def split_to_lines(file_name, preds):
     images = []
     width, height = pil_img.size
     for pred in preds:
-        if pred['conf'] > 0.7:
+        if pred['conf'] > CONFIDENCE_THRESHOLD:
             left = 0
             upper = (pred['y'] - pred['height'] / 2) * height
             right = width
@@ -74,7 +76,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# Does this have a purpose???
+# TODO: Does this have a purpose???
 @app.route('/img/<filename>')
 def send_img(filename):
 	return send_from_directory('', filename)
@@ -89,9 +91,7 @@ def root():
 def confirm():
     os.chdir(r'/home/hilnels')
 
-    currdir = os.getcwd()
-    print("predict")
-    print(currdir)
+    print('confirm:', os.getcwd())
 
     if request.method == 'POST':
         print('AWSKEY ' + AWS_KEY)
@@ -111,17 +111,14 @@ def confirm():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], FILENAME))
             print(FILENAME)
 
-    return render_template('confirm.html')
+        return render_template('confirm.html', filename = UPLOAD_FOLDER + FILENAME)
 
 @app.route('/result', methods=['GET', 'POST'])
 def predict():
     filename = FILENAME
 
     os.chdir(r'/home/hilnels')
-
-    currdir = os.getcwd()
-    print("predict")
-    print(currdir)
+    print('predict:', os.getcwd())
 
     if request.method == 'POST':
         """
@@ -144,11 +141,16 @@ def predict():
             # return redirect(url_for('predict', filename=filename))
         """
 
+        # Checks if user wants to upload a new image
+        if request.form.action = 'Upload different image':
+            return render_template('index.html')
 
-        voc_path = "/home/hilnels/mysite/scripts/vocabulary_semantic.txt"
-
+        title = request.form['title']
+        # TODO: check if title is empty/contains invalid characters like . or /
+        print(title)
+        
         # Read the dictionary
-        dict_file = open(voc_path, 'r')
+        dict_file = open(VOCAB_PATH, 'r')
         dict_list = dict_file.read().splitlines()
         int2word = dict()
         for word in dict_list:
@@ -157,9 +159,10 @@ def predict():
         dict_file.close()
 
         # Restore weights
+        # TODO: fix magic number
         width_reduction = 16
 
-        file_path = "/home/hilnels/mysite/.uploads/" + filename
+        file_path = UPLOAD_FOLDER + filename
 
         # Read in file_path
         raw_im = cv2.imread(file_path)
@@ -179,6 +182,7 @@ def predict():
         predict_to_parse = ""
 
         for image in split_images:
+            # TODO: magic number
             image = ctc_utils.resize(image, 128)
             image = ctc_utils.normalize(image)
             image = np.asarray(image).reshape(1,image.shape[0],image.shape[1],1)
@@ -194,13 +198,13 @@ def predict():
                 EndpointName=ioc_predictor_endpoint_name,
                 Body=body,
                 ContentType=content_type
-             )
+            )
 
-            response = ioc_response["Body"].read()
+            response = ioc_response['Body'].read()
 
             data = json.loads(response)
 
-            list_tensor = data["outputs"]["fully_connected/BiasAdd"]
+            list_tensor = data['outputs']['fully_connected/BiasAdd']
 
             output = tf.convert_to_tensor(list_tensor, tf.float32)
 
@@ -211,36 +215,34 @@ def predict():
             print(str_predictions)
             for w in str_predictions:
                 predict_to_parse += int2word[w]
-                predict_to_parse += "\n"
+                predict_to_parse += '\n'
                 print(int2word[w])
 
         print(predict_to_parse)
 
         lilyPond = \
-            sheet_music_parser.generate_music(predict_to_parse, filename)
+            sheet_music_parser.generate_music(predict_to_parse, title)
 
         os.chdir(r'/home/hilnels/mysite/.downloads')
-        lilyFile = filename + ".ly"
-        with open(lilyFile, "w") as fo:
+        lilyFile = title + '.ly'
+        with open(lilyFile, 'w') as fo:
             fo.write(lilyPond)
 
-        global PATH
-        PATH = '/home/hilnels/mysite/.downloads/' + lilyFile
+        global DOWNLOAD_PATH
+        DOWNLOAD_PATH += lilyFile
 
     return render_template('result.html')
 
 
-@app.route("/download")
+@app.route('/download')
 def download():
 
     # os.chdir(r'/home/hilnels/mysite/.downloads')
 
-    currdir = os.getcwd()
-    print('download')
-    print(currdir)
+    print('download:', os.getcwd())
 
-    global PATH
-    return send_file(PATH, as_attachment=True)
+    global DOWNLOAD_PATH
+    return send_file(DOWNLOAD_PATH, as_attachment=True)
 
 @app.route('/about')
 def about():
@@ -254,11 +256,3 @@ def help():
 
 if __name__ == '__main__':
     app.run()
-
-
-"""
-@app.route('/')
-@app.route('/index')
-def index():
-    return '[testing]'
-"""
