@@ -1,4 +1,4 @@
 .DS_Store
-.downloads/*
-.uploads/*
+downloads/*
+uploads/*
 env.py

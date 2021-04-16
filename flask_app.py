@@ -21,13 +21,14 @@ AWS_SECRET = env.AWS_SECRET
 
 client = boto3.client('sagemaker-runtime', region_name='us-east-1', aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET)
 
-UPLOAD_FOLDER = '/home/hilnels/mysite/.uploads'
+UPLOAD_FOLDER = '/home/hilnels/mysite/uploads'
+DOWNLOAD_FOLDER = '/home/hilnels/mysite/downloads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 CONFIDENCE_THRESHOLD = 0.7
 VOCAB_PATH = '/home/hilnels/mysite/scripts/vocabulary_semantic.txt'
-DOWNLOAD_PATH = '/home/hilnels/mysite/.downloads/'
 
 FILENAME = ''
+DOWNLOAD_FILENAME = ''
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -76,11 +77,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# TODO: Does this have a purpose???
-@app.route('/img/<filename>')
-def send_img(filename):
-	return send_from_directory('', filename)
-
 
 @app.route('/')
 def root():
@@ -111,11 +107,19 @@ def confirm():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], FILENAME))
             print(FILENAME)
 
-        return render_template('confirm.html', filename = UPLOAD_FOLDER + FILENAME)
+        # return render_template('confirm.html', filename = '/uploads/' + FILENAME)
+        return render_template('confirm.html', filename = FILENAME)
+
+
+@app.route('/send_img/<filename>')
+def send_img(filename):
+    '''Displays file on confirmation page
+    '''
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 
 @app.route('/result', methods=['GET', 'POST'])
 def predict():
-    filename = FILENAME
 
     os.chdir(r'/home/hilnels')
     print('predict:', os.getcwd())
@@ -142,13 +146,14 @@ def predict():
         """
 
         # Checks if user wants to upload a new image
-        if request.form.action == 'Upload different image':
+        print(request.form)
+        if request.form['button'] == 'Upload different image':
             return render_template('index.html')
 
         title = request.form['title']
         # TODO: check if title is empty/contains invalid characters like . or /
         print(title)
-        
+
         # Read the dictionary
         dict_file = open(VOCAB_PATH, 'r')
         dict_list = dict_file.read().splitlines()
@@ -162,7 +167,8 @@ def predict():
         # TODO: fix magic number
         width_reduction = 16
 
-        file_path = UPLOAD_FOLDER + filename
+        file_path = UPLOAD_FOLDER + '/' + FILENAME
+        print(file_path)
 
         # Read in file_path
         raw_im = cv2.imread(file_path)
@@ -223,13 +229,11 @@ def predict():
         lilyPond = \
             sheet_music_parser.generate_music(predict_to_parse, title)
 
-        os.chdir(r'/home/hilnels/mysite/.downloads')
-        lilyFile = title + '.ly'
-        with open(lilyFile, 'w') as fo:
+        os.chdir(DOWNLOAD_FOLDER)
+        global DOWNLOAD_FILENAME
+        DOWNLOAD_FILENAME = title + '.ly'
+        with open(DOWNLOAD_FILENAME, 'w') as fo:
             fo.write(lilyPond)
-
-        global DOWNLOAD_PATH
-        DOWNLOAD_PATH += lilyFile
 
     return render_template('result.html')
 
@@ -237,12 +241,12 @@ def predict():
 @app.route('/download')
 def download():
 
-    # os.chdir(r'/home/hilnels/mysite/.downloads')
+    os.chdir(r'/')
 
     print('download:', os.getcwd())
 
-    global DOWNLOAD_PATH
-    return send_file(DOWNLOAD_PATH, as_attachment=True)
+    # return send_from_directory(app.config['DOWNLOAD_FOLDER'], DOWNLOAD_FILENAME, as_attachment=True)
+    return send_file(DOWNLOAD_FOLDER + '/' + DOWNLOAD_FILENAME, as_attachment=True)
 
 @app.route('/about')
 def about():
