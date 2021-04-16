@@ -142,7 +142,7 @@ def predict():
         """
 
         # Checks if user wants to upload a new image
-        if request.form.action = 'Upload different image':
+        if request.form.action == 'Upload different image':
             return render_template('index.html')
 
         title = request.form['title']
