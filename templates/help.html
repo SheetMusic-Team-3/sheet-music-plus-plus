@@ -50,31 +50,33 @@
 
   <!-- Hero content: will be in the middle -->
   <div class="hero-body">
-    <div class="container has-text-centered">
+    <div class="container">
       <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}" alt="SheetMusic++ logo; treble clef followed by ++ in a blue hexagon">
-      <h2 class="subtitle">
-        <strong>Help</strong>
-        <br/><br/>
-        <strong>Q:</strong> Why am I getting an invalid image message?
-        <br/>
-        <strong>A:</strong> Sheet Music Analyzer accepts image formats such as .png, .jpeg, and .heic. If you are uploading an image of that type and still getting error messages, the file is likely corrupted.
+      <h2>Help</h2>
 
-        <br/><br/>
-        <strong>Q:</strong> What is LilyPond?
-        <br/>
-        <strong>A:</strong> LilyPond is a text based software that generates sheet music in .pdf, .png, or .midi format. Read more about LilyPond at lilypond.org 
+      <div class="q-and-a">
+        <div class="q">
+          Why am I getting an invalid image message?
+        </div>
+        <div class="a">
+          There are multiple reasons why your inputted file may be returned as invalid. The most common reason may be that your file doesn’t contain typescript, Western classical notation, which is all that our model currently accepts as a valid input. If it does, then there may be issues reading your notation font, or with your line spacing. Our service utilizes a line-splitting YOLO model, and the issue would derive from a low confidence from that model to identify the individual lines of your inputted score. The last major factor in an invalid image may be as simple as your image orientation. Our model may be having a hard time reading a crooked sheet of music, and the fix is as simple as re-uploading a vertically-oriented sheet!
+        </div>
+      </div>
 
-        <br/><br/>
-        <strong>Q:</strong> How does Sheet Music Analyzer work?
-        <br/>
-        <strong>A:</strong> You can read more about Sheet Music Analyzer on the About page.
+      <div class="q-and-a">
+        <div class="q">What is LilyPond?</div>
+        <div class="a">LilyPond is a text based software that generates sheet music in .pdf, .png, or .midi format. Read more about LilyPond at <a href="http://lilypond.org" target="_blank">lilypond.org</a></div>
+      </div>
 
-        <br/><br/>
-        <strong>Q:</strong> What if the sheet music generated is incorrect?
-        <br/>
-        <strong>A:</strong> We can’t guarantee that every piece of sheet music generated on Sheet Music Analyzer will be perfect. If your sheet music has a few errors in it you would like to correct, download it as a LilyPond file to modify it.
+      <div class="q-and-a">
+        <div class="q">How does Sheet Music Analyzer work?</div>
+        <div class="a">You can read more about Sheet Music Analyzer on the About page.</div>
+      </div>
 
-      </h2>
+      <div class="q-and-a">
+        <div class="q">What if the sheet music generated is incorrect?</div>
+        <div class="a">We can’t guarantee that every piece of sheet music generated on Sheet Music Analyzer will be perfect. If your sheet music has a few errors in it you would like to correct, download it as a LilyPond file to modify it.</div>
+      </div>
     </div>
   </div>
 
