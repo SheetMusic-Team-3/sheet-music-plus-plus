@@ -284,13 +284,17 @@ li {
 }
 
 svg.progress-step {
-    margin: var(--progress-stroke);
     width: 1.75rem;
     height: 1.75rem;
 }
 
 svg.progress-step line {
     stroke: var(--medium);
+    stroke-width: var(--progress-stroke);
+}
+
+svg.progress-step.completed line {
+    stroke: var(--primary-color);
     stroke-width: var(--progress-stroke);
 }
 
@@ -302,10 +306,6 @@ svg.progress-step circle {
 }
 
 svg.progress-step.completed circle {
-    fill: var(--medium);
-}
-
-svg.progress-step.current circle {
     fill: var(--primary-color);
     stroke: var(--primary-color);
 }
