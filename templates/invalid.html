@@ -36,7 +36,7 @@
             <a class="navbar-item" href="https://www.sheetmusicplusplus.com">
               Home
             </a>
-            <a class="navbar-item is-active" href="https://www.sheetmusicplusplus.com/about" target="_blank">
+            <a class="navbar-item" href="https://www.sheetmusicplusplus.com/about" target="_blank">
               About
             </a>
             <a class="navbar-item" href="https://www.sheetmusicplusplus.com/help" target="_blank">
@@ -50,25 +50,18 @@
 
   <!-- Hero content: will be in the middle -->
   <div class="hero-body">
-    <div class="container">
-      <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}" alt="SheetMusic++ logo; treble clef followed by ++ in a blue hexagon">
-      <h2>About</h2>
+    <div class="container has-text-centered">
+      <img id="invalid-image" src="{{ url_for('static', filename='graphics/invalid.svg') }}" alt="Blue exclamation mark">
+      <h2>Invalid image</h2>
       <p>
-        This is a sheet music analyzer designed by a team of Pitzer College students in 2021. It allows you to take a picture or scan of any piece of sheet music you might have and turn it into 3 separate file types:
+        {{ reason }}
       </p>
-      <ol>
-        <li>
-          PDF: This is a clean document of your music that can easily be stored and shared
-        </li>
-        <li>
-          MIDI: This is a digital music file that can be read by programs such as GarageBand in order to edit notes and virtually play the piece as any instrument
-        </li>
-        <li>
-          LilyPond: This is a digital markup language that has a small file size and can easily be edited and then exported as a PDF, PNG, or MIDI file using a program that you install or through a free online compiler such as LilyBin
-        </li>
-      </ol>
-      Our web app utilizes two models: an open-source semantic model designed to read an individual line of music and translate that to a semantic vocabulary, and a YOLO model that we use to separate multi-lined scores for the semantic model to read one by one. These separated lines are then parsed back together into our final PDF, MIDI, and LilyPond formats. 
-      </h2>
+      <p>
+        For more information, please see the <a href="https://www.sheetmusicplusplus.com/help" target="_blank">Help</a> page.
+      </p>
+      <form action="https://www.sheetmusicplusplus.com">
+        <input class="button" type="submit" value="Try anther image">
+      </form>
     </div>
   </div>
 

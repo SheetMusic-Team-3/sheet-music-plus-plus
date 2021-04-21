@@ -52,12 +52,9 @@
   <div class="hero-body">
     <div class="container has-text-centered">
       <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}" alt="SheetMusic++ logo; treble clef followed by ++ in a blue hexagon">
-      <h2 class="subtitle">
-        <strong>Welcome to SheetMusic++</strong>
-        <br/>
-        Upload an image of sheet music to produce a LilyPond replica.
-      </h2>
-      <!-- <form action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data"> -->
+      <h2 id="welcome">Welcome to SheetMusic++</h2>
+      Upload an image of sheet music to produce a LilyPond replica.
+
       <form action="{{ url_for('confirm') }}" method="post" enctype="multipart/form-data">
         <div id="file-js-example" class="file has-name is-centered is-boxed">
           <label class="file-label">
