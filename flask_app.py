@@ -43,6 +43,39 @@ client = boto3.client(
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+def semantic_endpoint_pred(client, endpoint_name, content_type, body):
+    ''' inputs: client -- boto3 sagemaker-runtime client
+                endpoint_name -- AWS endpoint name (string)
+                content_type -- image/jpeg for YOLO (string)
+                body -- request body (image bytes)
+        outputs: a list of dictionaries representing each label
+    '''
+    if content_type != "application/json":
+        return "Wrong input type"
+
+    ioc_response = client.invoke_endpoint(
+        EndpointName=endpoint_name,
+        Body=body,
+        ContentType=content_type
+    )
+    response = ioc_response['Body'].read()
+    data = json.loads(response)
+    return data
+
+def parse_tensor_to_str_preds(data, seq_lengths):
+    """ inputs: data --  a dictionary of the model output
+                seq_lengths -- a single-element array of the sequence length fed into the model
+        outputs: the note predictions from that output (string)
+    """
+    if type(data) != dict:
+        return "Wrong type"
+    list_tensor = data['outputs']['fully_connected/BiasAdd']
+    output = tf.convert_to_tensor(list_tensor, tf.float32)
+    decoded, _ = tf.nn.ctc_greedy_decoder(output, seq_lengths)
+    result = decoded[0].values
+    str_predictions = result.numpy().tolist()
+    return str_predictions
+
 
 def yolo_endpoint_pred(client, endpoint_name, content_type, body):
     ''' inputs: client -- boto3 sagemaker-runtime client
@@ -203,7 +236,6 @@ def predict():
                 image.shape[1],
                 1
             )
-            print(image.shape)
 
             seq_lengths = [image.shape[2] // IMAGE_WIDTH_REDUCTION]
 
@@ -216,33 +248,12 @@ def predict():
                 }
             })
 
-            ioc_predictor_endpoint_name = 'semantic'
-            content_type = 'application/json'
-            ioc_response = client.invoke_endpoint(
-                EndpointName=ioc_predictor_endpoint_name,
-                Body=body,
-                ContentType=content_type
-            )
+            data = semantic_endpoint_pred(client, "semantic", "application/json", body)
+            str_predictions = parse_tensor_to_str_preds(data, seq_lengths)
 
-            response = ioc_response['Body'].read()
-
-            data = json.loads(response)
-
-            list_tensor = data['outputs']['fully_connected/BiasAdd']
-
-            output = tf.convert_to_tensor(list_tensor, tf.float32)
-
-            decoded, _ = tf.nn.ctc_greedy_decoder(output, seq_lengths)
-
-            result = decoded[0].values
-            str_predictions = result.numpy().tolist()
-            print(str_predictions)
             for w in str_predictions:
                 predict_to_parse += int2word[w]
                 predict_to_parse += '\n'
-                print(int2word[w])
-
-        print(predict_to_parse)
 
         lilyPond = \
             sheet_music_parser.generate_music(predict_to_parse, title)
