@@ -290,16 +290,8 @@ def predict():
         upload_filepath = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
         file_handle = open(upload_filepath, 'r')
 
-        # bash_command = "lilypond --pdf" + DOWNLOAD_FILENAME
-        # process = subprocess.Popen(bash_command.split(), stdout = subprocess.PIPE)
-        # process = subprocess.run(["lilypond", "--pdf", DOWNLOAD_FILENAME])
-        # output, error = process.communicate()
-
-        session = Popen(["lilypond", "--pdf", DOWNLOAD_FILENAME], stdout=PIPE, stderr=PIPE)
-        stdout, stderr = session.communicate()
-        if stderr:
-            raise Exception("Error "+str(stderr))
-        return stdout.decode('utf-8')
+        bash_command = "/home/hilnels/bin/lilypond --pdf " + DOWNLOAD_FILENAME
+        subprocess.call(bash_command, shell=True)
 
         # remove uploaded file
         @after_this_request
@@ -335,32 +327,32 @@ def download():
             app.logger.error("Error removing or closing downloaded file handle", error)
         return response
 
-    midi_filepath = DOWNLOAD_FOLDER + '/' + MIDI_FILENAME
+    # midi_filepath = DOWNLOAD_FOLDER + '/' + MIDI_FILENAME
 
-    # remove midi file
-    @after_this_request
-    def remove_file_midi(response):
-        try:
-            os.remove(midi_filepath)
-            file_handle.close()
-        except Exception as error:
-            app.logger.error("Error removing or closing downloaded file handle", error)
-        return response
+    # # remove midi file
+    # @after_this_request
+    # def remove_file_midi(response):
+    #     try:
+    #         os.remove(midi_filepath)
+    #         file_handle.close()
+    #     except Exception as error:
+    #         app.logger.error("Error removing or closing downloaded file handle", error)
+    #     return response
 
-    pdf_filepath = DOWNLOAD_FOLDER + '/' + PDF_FILENAME
+    # pdf_filepath = DOWNLOAD_FOLDER + '/' + PDF_FILENAME
 
-    # remove pdf file
-    @after_this_request
-    def remove_file_pdf(response):
-        try:
-            os.remove(pdf_filepath)
-            file_handle.close()
-        except Exception as error:
-            app.logger.error("Error removing or closing downloaded file handle", error)
-        return response
+    # # remove pdf file
+    # @after_this_request
+    # def remove_file_pdf(response):
+    #     try:
+    #         os.remove(pdf_filepath)
+    #         file_handle.close()
+    #     except Exception as error:
+    #         app.logger.error("Error removing or closing downloaded file handle", error)
+    #     return response
 
     return send_file(
-        pdf_filepath,
+        download_filepath,
         as_attachment=True
     )
 
