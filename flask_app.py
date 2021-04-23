@@ -1,9 +1,9 @@
 from flask import Flask, flash, request, send_from_directory
-from flask import render_template, redirect, send_file
+from flask import render_template, redirect, send_file, after_this_request
 import os
 import tensorflow as tf
-from tensorflow.python.framework import ops
-import tensorflow.compat.v1 as tfc
+# from tensorflow.python.framework import ops
+# import tensorflow.compat.v1 as tfc
 import cv2
 import numpy as np
 from scripts import ctc_utils
@@ -14,6 +14,8 @@ import json
 import env
 import base64
 from PIL import Image
+import subprocess
+from subprocess import Popen, PIPE
 
 # Disables TensorFlow INFO, WARNING, and ERROR messages from being printed
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -28,8 +30,10 @@ IMAGE_RESIZE_HEIGHT = 128
 IMAGE_WIDTH_REDUCTION = 16
 CONFIDENCE_THRESHOLD = 0.7
 VOCAB_PATH = '/home/hilnels/mysite/scripts/vocabulary_semantic.txt'
-FILENAME = ''
+UPLOAD_FILENAME = ''
 DOWNLOAD_FILENAME = ''
+MIDI_FILENAME = ''
+PDF_FILNAME = ''
 
 # TODO: Comment
 client = boto3.client(
@@ -39,33 +43,59 @@ client = boto3.client(
     aws_secret_access_key=AWS_SECRET
 )
 
-# TODO: Comment
+# Defining Flask app
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024    # 5 Mb limit
 
-def semantic_endpoint_pred(client, endpoint_name, content_type, body):
+#############
+# Functions #
+#############
+
+def semantic_input_preprocess(image):
+    """ inputs: image (cv2 format)
+        outputs: list format of opencv2 image, a single element float list
+    """
+    image = ctc_utils.resize(image, IMAGE_RESIZE_HEIGHT)
+    image = ctc_utils.normalize(image)
+    image = np.asarray(image).reshape(
+        1,
+        image.shape[0],
+        image.shape[1],
+        1
+    )
+    seq_lengths = [image.shape[2] // IMAGE_WIDTH_REDUCTION]
+    image = image.tolist()
+    return image, seq_lengths
+
+def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
     ''' inputs: client -- boto3 sagemaker-runtime client
                 endpoint_name -- AWS endpoint name (string)
-                content_type -- image/jpeg for YOLO (string)
-                body -- request body (image bytes)
-        outputs: a list of dictionaries representing each label
+                input_image -- image for prediction (list)
+                seq_lengths -- sequence length for model prediction (float list)
+        outputs: a dictionary
     '''
-    if content_type != "application/json":
-        return "Wrong input type"
-
+    body = json.dumps({
+        'signature_name': 'predict',
+        'inputs': {
+            'input': input_image,
+            'seq_len': seq_lengths,
+            'rnn_keep_prob': 1.0
+        }
+    })
     ioc_response = client.invoke_endpoint(
         EndpointName=endpoint_name,
         Body=body,
-        ContentType=content_type
+        ContentType="application/json"
     )
     response = ioc_response['Body'].read()
     data = json.loads(response)
     return data
 
-def parse_tensor_to_str_preds(data, seq_lengths):
+def parse_tensor_to_vocab_indices(data, seq_lengths):
     """ inputs: data --  a dictionary of the model output
-                seq_lengths -- a single-element array of the sequence length fed into the model
-        outputs: the note predictions from that output (string)
+                seq_lengths -- sequence length for model prediction (float list)
+        outputs: the note predictions from that output (integer list)
     """
     if type(data) != dict:
         return "Wrong type"
@@ -73,8 +103,8 @@ def parse_tensor_to_str_preds(data, seq_lengths):
     output = tf.convert_to_tensor(list_tensor, tf.float32)
     decoded, _ = tf.nn.ctc_greedy_decoder(output, seq_lengths)
     result = decoded[0].values
-    str_predictions = result.numpy().tolist()
-    return str_predictions
+    vocab_indices = result.numpy().tolist()
+    return vocab_indices
 
 
 def yolo_endpoint_pred(client, endpoint_name, content_type, body):
@@ -82,11 +112,8 @@ def yolo_endpoint_pred(client, endpoint_name, content_type, body):
                 endpoint_name -- AWS endpoint name (string)
                 content_type -- image/jpeg for YOLO (string)
                 body -- request body (image bytes)
-        outputs: a list of dictionaries representing each label
+        outputs: a list of dictionaries representing each label sorted by y coord
     '''
-    if content_type != 'image/jpeg':
-        return 'Wrong content type'
-
     ioc_response = client.invoke_endpoint(
         EndpointName=endpoint_name,
         Body=body,
@@ -94,6 +121,7 @@ def yolo_endpoint_pred(client, endpoint_name, content_type, body):
 
     response = ioc_response['Body'].read()
     preds = json.loads(response)
+    preds = sorted(preds, key=lambda k: k['y'])
     return preds
 
 
@@ -120,12 +148,17 @@ def split_to_lines(filename, preds):
 
 
 def allowed_file(filename):
-    ''' TODO
+    ''' confirms that the filetype is a valid file
+        inputs: filename including extension
+        outputs: filename excluding extension
     '''
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+##############
+# App Routes #
+##############
 @app.route('/')
 def root():
     ''' returns the main page when the app is loaded
@@ -145,7 +178,6 @@ def confirm():
     print('confirm:', os.getcwd())
 
     if request.method == 'POST':
-        print('AWSKEY ' + AWS_KEY)
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -157,12 +189,12 @@ def confirm():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            global FILENAME
-            FILENAME = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], FILENAME))
-            print(FILENAME)
+            global UPLOAD_FILENAME
+            UPLOAD_FILENAME = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], UPLOAD_FILENAME))
+            print(UPLOAD_FILENAME)
 
-        return render_template('confirm.html', filename=FILENAME)
+        return render_template('confirm.html', filename=UPLOAD_FILENAME)
 
 
 @app.route('/send_img/<filename>')
@@ -192,8 +224,10 @@ def predict():
         if request.form['button'] == 'Upload different image':
             return render_template('index.html')
 
-        title = request.form['title']
-        # TODO: check if title is empty/contains invalid characters like . or /
+        title = secure_filename(request.form['title'])
+
+        if title == '':
+            title = 'my_music'
         print(title)
 
         # read the dictionary
@@ -207,8 +241,9 @@ def predict():
 
         # restore weights
 
-        file_path = UPLOAD_FOLDER + '/' + FILENAME
-        print(file_path)
+        file_path = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
+        print("fname " + UPLOAD_FILENAME)
+        print("full_path  " + file_path)
 
         # read in file_path
         raw_im = cv2.imread(file_path)
@@ -216,8 +251,6 @@ def predict():
         bytes_jpg = base64.b64encode(buffer)
 
         preds = yolo_endpoint_pred(client, 'yolov5', 'image/jpeg', bytes_jpg)
-
-        preds = sorted(preds, key=lambda k: k['y'])
 
         split_images = split_to_lines(file_path, preds)
 
@@ -227,33 +260,19 @@ def predict():
         # output string
         predict_to_parse = ''
 
-        for image in split_images:
-            image = ctc_utils.resize(image, IMAGE_RESIZE_HEIGHT)
-            image = ctc_utils.normalize(image)
-            image = np.asarray(image).reshape(
-                1,
-                image.shape[0],
-                image.shape[1],
-                1
-            )
-
-            seq_lengths = [image.shape[2] // IMAGE_WIDTH_REDUCTION]
-
-            body = json.dumps({
-                'signature_name': 'predict',
-                'inputs': {
-                    'input': image.tolist(),
-                    'seq_len': seq_lengths,
-                    'rnn_keep_prob': 1.0
-                }
-            })
-
-            data = semantic_endpoint_pred(client, "semantic", "application/json", body)
-            str_predictions = parse_tensor_to_str_preds(data, seq_lengths)
-
-            for w in str_predictions:
+        for split_image in split_images:
+            input_image, seq_lengths = semantic_input_preprocess(split_image)
+            data = semantic_endpoint_pred(client, "semantic", input_image, seq_lengths)
+            vocab_indices = parse_tensor_to_vocab_indices(data, seq_lengths)
+            for w in vocab_indices:
                 predict_to_parse += int2word[w]
                 predict_to_parse += '\n'
+
+
+        if predict_to_parse == '':
+            return render_template('invalid.html', reason='The image you \
+            uploaded cannot be interpreted as music. Please try again with a \
+            new image.')
 
         lilyPond = \
             sheet_music_parser.generate_music(predict_to_parse, title)
@@ -261,11 +280,38 @@ def predict():
         os.chdir(DOWNLOAD_FOLDER)
         global DOWNLOAD_FILENAME
         DOWNLOAD_FILENAME = title + '.ly'
+        global MIDI_FILENAME
+        MIDI_FILENAME = title + '.midi'
+        global PDF_FILENAME
+        PDF_FILENAME = title + '.pdf'
         with open(DOWNLOAD_FILENAME, 'w') as fo:
             fo.write(lilyPond)
 
-    return render_template('result.html')
+        upload_filepath = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
+        file_handle = open(upload_filepath, 'r')
 
+        # bash_command = "lilypond --pdf" + DOWNLOAD_FILENAME
+        # process = subprocess.Popen(bash_command.split(), stdout = subprocess.PIPE)
+        # process = subprocess.run(["lilypond", "--pdf", DOWNLOAD_FILENAME])
+        # output, error = process.communicate()
+
+        session = Popen(["lilypond", "--pdf", DOWNLOAD_FILENAME], stdout=PIPE, stderr=PIPE)
+        stdout, stderr = session.communicate()
+        if stderr:
+            raise Exception("Error "+str(stderr))
+        return stdout.decode('utf-8')
+
+        # remove uploaded file
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(upload_filepath)
+                file_handle.close()
+            except Exception as error:
+                app.logger.error("Error removing or closing downloaded file handle", error)
+            return response
+
+        return render_template('result.html')
 
 @app.route('/download')
 def download():
@@ -276,8 +322,45 @@ def download():
     os.chdir(r'/')
     print('download:', os.getcwd())
 
+    download_filepath = DOWNLOAD_FOLDER + '/' + DOWNLOAD_FILENAME
+    file_handle = open(download_filepath, 'r')
+
+    # remove lilypond
+    @after_this_request
+    def remove_file_ly(response):
+        try:
+            os.remove(download_filepath)
+            file_handle.close()
+        except Exception as error:
+            app.logger.error("Error removing or closing downloaded file handle", error)
+        return response
+
+    midi_filepath = DOWNLOAD_FOLDER + '/' + MIDI_FILENAME
+
+    # remove midi file
+    @after_this_request
+    def remove_file_midi(response):
+        try:
+            os.remove(midi_filepath)
+            file_handle.close()
+        except Exception as error:
+            app.logger.error("Error removing or closing downloaded file handle", error)
+        return response
+
+    pdf_filepath = DOWNLOAD_FOLDER + '/' + PDF_FILENAME
+
+    # remove pdf file
+    @after_this_request
+    def remove_file_pdf(response):
+        try:
+            os.remove(pdf_filepath)
+            file_handle.close()
+        except Exception as error:
+            app.logger.error("Error removing or closing downloaded file handle", error)
+        return response
+
     return send_file(
-        DOWNLOAD_FOLDER + '/' + DOWNLOAD_FILENAME,
+        pdf_filepath,
         as_attachment=True
     )
 
@@ -290,6 +373,21 @@ def about():
 @app.route('/help')
 def help():
     return render_template('help.html')
+
+
+@app.route('/invalid')
+def invalid():
+    return render_template('invalid.html')
+
+
+@app.errorhandler(413)
+def error413(e):
+    return render_template('invalid.html', reason='Your image is too large! Please try downsizing this image and reuploading.'), 413
+
+
+@app.errorhandler(500)
+def error500(e):
+    return render_template('invalid.html', reason='Oops! Something went wrong. Please try again.'), 500
 
 
 if __name__ == '__main__':

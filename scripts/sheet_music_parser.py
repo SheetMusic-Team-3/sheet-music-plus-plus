@@ -209,10 +209,10 @@ def generate_music(model_output, piece_title):
     element_list = model_output.split("\n")
 
     lilyPond = "\\version \"2.20.0\" \n\header{\n  title = \"" +\
-        piece_title + "\"\n}\n{\n"
+        piece_title + "\"\n}\n\\score{ {\n"
 
     # f = open(piece_title + ".ly", "w+")
-    # f.write("\\version \"2.20.0\" \n\header{\n  title = \"" + piece_title + "\"\n}\n{\n")
+    # f.write("\\version \"2.20.0\" \n\header{\n  title = \"" + piece_title + "\"\n}\n\\score{ {\n")
 
     for x in range(len(element_list)-1):
         next_elem = parser(element_list[x])
@@ -220,7 +220,7 @@ def generate_music(model_output, piece_title):
         lilyPond += next_elem
         # f.write(parser(element_list[x]))
 
-    lilyPond += "}"
+    lilyPond += "} \n \\midi{} \n \\layout{} }"
     return lilyPond
-    # f.write("}")
+    # f.write("\\midi{} \n \\layout{} }")
     # f.close()
