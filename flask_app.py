@@ -330,7 +330,7 @@ def download(type):
         return render_template(
             'invalid.html',
             error='Oops!',
-            text=='Something went wrong. Please try again.'
+            text='Something went wrong. Please try again.'
         )
 
     # remove lilypond
@@ -364,7 +364,7 @@ def invalid():
     return render_template(
         'invalid.html',
         error='Oops!',
-        text=='Something went wrong. Please try again.'
+        text='Something went wrong. Please try again.'
     )
 
 @app.route('/test')
@@ -386,7 +386,7 @@ def error500(e):
     return render_template(
         'invalid.html',
         error='Oops!',
-        text=='Something went wrong. Please try again.'
+        text='Something went wrong. Please try again.'
     ), 500
 
 
