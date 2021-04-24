@@ -280,12 +280,46 @@ li {
 
 
 /* ----------------------
+   RESULT
+---------------------- */
+#downloads {
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+#downloads .download-item {
+    width: 100%;
+    padding: 0 2rem;
+    flex-grow: 1;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#downloads .download-item p {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#downloads .download-item input.button {
+    width: 100%;
+}
+
+#restart {
+    margin-top: 3rem;
+}
+
+
+/* ----------------------
    INVALID
 ---------------------- */
 #invalid-image {
     height: 30vh;
 }
-
 
 
 /* ----------------------

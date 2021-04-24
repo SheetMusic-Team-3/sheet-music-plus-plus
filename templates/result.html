@@ -51,20 +51,39 @@
   <!-- Hero content: will be in the middle -->
   <div class="hero-body">
     <div class="container has-text-centered">
-      <br>
-        <nav class="level-center">
-          <div class="level-item has-text-centered">
-            <div>
-             <form action="https://www.sheetmusicplusplus.com">
-                <input class="button" type="submit" value="Analyze another piece of sheet music">
-              </form>
-              <form action="{{ url_for('download')}}">
-                <input style="margin-top:25px" class="button" type="submit" value="Download my LilyPond">
-              </form>
-            </div>
-          </div>
-        </nav>
+      <div id="downloads">
+        <div class="download-item">
+          <form action="{{ url_for('download', type='pdf') }}">
+            <input class="button" type="submit" value="Download PDF">
+          </form>
+          <p>
+            Read your music with PDF
+          </p>
+        </div>
 
+        <div class="download-item">
+          <form action="{{ url_for('download', type='ly') }}">
+            <input class="button" type="submit" value="Download LilyPond">
+          </form>
+          <p>
+            Edit your music with LilyPond <a href="" target="_blank">(see more)</a>
+          </p>
+        </div>
+
+        <div class="download-item">
+          <form action="{{ url_for('download', type='midi') }}">
+            <input class="button" type="submit" value="Download MIDI">
+          </form>
+          <p>
+            Listen to your music with MIDI <a href="" target="_blank">(see more)</a>
+          </p>
+        </div>
+      </div>
+      <div id="restart">
+        <form action="https://www.sheetmusicplusplus.com">
+          <input class="button secondary" type="submit" value="Analyze another piece of sheet music">
+        </form>
+      </div>
     </div>
   </div>
 

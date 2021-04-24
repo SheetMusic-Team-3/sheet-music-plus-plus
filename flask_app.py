@@ -270,27 +270,30 @@ def predict():
 
 
         if predict_to_parse == '':
-            return render_template('invalid.html', reason='The image you \
-            uploaded cannot be interpreted as music. Please try again with a \
-            new image.')
+            return render_template(
+                'invalid.html',
+                error='Invalid Image',
+                text='The image you uploaded cannot be interpreted as music.\
+                    Please try again with a new image.'
+            )
 
         lilyPond = \
             sheet_music_parser.generate_music(predict_to_parse, title)
 
         os.chdir(DOWNLOAD_FOLDER)
-        global DOWNLOAD_FILENAME
-        DOWNLOAD_FILENAME = title + '.ly'
+        global LY_FILENAME
+        LY_FILENAME = title + '.ly'
         global MIDI_FILENAME
         MIDI_FILENAME = title + '.midi'
         global PDF_FILENAME
         PDF_FILENAME = title + '.pdf'
-        with open(DOWNLOAD_FILENAME, 'w') as fo:
+        with open(LY_FILENAME, 'w') as fo:
             fo.write(lilyPond)
 
         upload_filepath = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
         file_handle = open(upload_filepath, 'r')
 
-        bash_command = "/home/hilnels/bin/lilypond --pdf " + DOWNLOAD_FILENAME
+        bash_command = "/home/hilnels/bin/lilypond --pdf " + LY_FILENAME
         subprocess.call(bash_command, shell=True)
 
         # remove uploaded file
@@ -305,8 +308,8 @@ def predict():
 
         return render_template('result.html')
 
-@app.route('/download')
-def download():
+@app.route('/download/<type>')
+def download(type):
     ''' sends download files to user's local machine
         outputs: output LilyPond file
     '''
@@ -314,8 +317,21 @@ def download():
     os.chdir(r'/')
     print('download:', os.getcwd())
 
-    download_filepath = DOWNLOAD_FOLDER + '/' + DOWNLOAD_FILENAME
-    file_handle = open(download_filepath, 'r')
+    if type == 'ly':
+        download_filepath = DOWNLOAD_FOLDER + '/' + LY_FILENAME
+        file_handle = open(download_filepath, 'r')
+    elif type == 'pdf':
+        download_filepath = DOWNLOAD_FOLDER + '/' + PDF_FILENAME
+        file_handle = open(download_filepath, 'r')
+    elif type == 'midi':
+        download_filepath = DOWNLOAD_FOLDER + '/' + MIDI_FILENAME
+        file_handle = open(download_filepath, 'r')
+    else:
+        return render_template(
+            'invalid.html',
+            error='Oops!',
+            text=='Something went wrong. Please try again.'
+        )
 
     # remove lilypond
     @after_this_request
@@ -326,30 +342,6 @@ def download():
         except Exception as error:
             app.logger.error("Error removing or closing downloaded file handle", error)
         return response
-
-    # midi_filepath = DOWNLOAD_FOLDER + '/' + MIDI_FILENAME
-
-    # # remove midi file
-    # @after_this_request
-    # def remove_file_midi(response):
-    #     try:
-    #         os.remove(midi_filepath)
-    #         file_handle.close()
-    #     except Exception as error:
-    #         app.logger.error("Error removing or closing downloaded file handle", error)
-    #     return response
-
-    # pdf_filepath = DOWNLOAD_FOLDER + '/' + PDF_FILENAME
-
-    # # remove pdf file
-    # @after_this_request
-    # def remove_file_pdf(response):
-    #     try:
-    #         os.remove(pdf_filepath)
-    #         file_handle.close()
-    #     except Exception as error:
-    #         app.logger.error("Error removing or closing downloaded file handle", error)
-    #     return response
 
     return send_file(
         download_filepath,
@@ -369,17 +361,32 @@ def help():
 
 @app.route('/invalid')
 def invalid():
-    return render_template('invalid.html')
+    return render_template(
+        'invalid.html',
+        error='Oops!',
+        text=='Something went wrong. Please try again.'
+    )
 
+@app.route('/test')
+invalid()
 
 @app.errorhandler(413)
 def error413(e):
-    return render_template('invalid.html', reason='Your image is too large! Please try downsizing this image and reuploading.'), 413
+    return render_template(
+        'invalid.html',
+        error='Invalid Image',
+        text='Your image is too large!\
+            Please try downsizing this image and reuploading.'
+    ), 413
 
 
 @app.errorhandler(500)
 def error500(e):
-    return render_template('invalid.html', reason='Oops! Something went wrong. Please try again.'), 500
+    return render_template(
+        'invalid.html',
+        error='Oops!',
+        text=='Something went wrong. Please try again.'
+    ), 500
 
 
 if __name__ == '__main__':
