@@ -368,7 +368,8 @@ def invalid():
     )
 
 @app.route('/test')
-invalid()
+def test():
+    return invalid()
 
 @app.errorhandler(413)
 def error413(e):
