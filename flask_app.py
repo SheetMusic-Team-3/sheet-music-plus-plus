@@ -17,10 +17,10 @@ from PIL import Image
 import subprocess
 from subprocess import Popen, PIPE
 
-# Disables TensorFlow INFO, WARNING, and ERROR messages from being printed
+# disables TensorFlow INFO, WARNING, and ERROR messages from being printed
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# Creating global variables
+# creates global variables
 AWS_KEY = env.AWS_KEY
 AWS_SECRET = env.AWS_SECRET
 UPLOAD_FOLDER = '/home/hilnels/mysite/uploads'
@@ -43,36 +43,36 @@ client = boto3.client(
     aws_secret_access_key=AWS_SECRET
 )
 
-# Defining Flask app
+# defines Flask app
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024    # 5 Mb limit
 
+
 #############
-# Functions #
+# FUNCTIONS #
 #############
 
+
 def semantic_input_preprocess(image):
-    """ inputs: image (cv2 format)
+    ''' inputs: image (cv2 format)
         outputs: list format of opencv2 image, a single element float list
-    """
+    '''
     image = ctc_utils.resize(image, IMAGE_RESIZE_HEIGHT)
     image = ctc_utils.normalize(image)
     image = np.asarray(image).reshape(
-        1,
-        image.shape[0],
-        image.shape[1],
-        1
+        1, image.shape[0], image.shape[1], 1
     )
     seq_lengths = [image.shape[2] // IMAGE_WIDTH_REDUCTION]
     image = image.tolist()
     return image, seq_lengths
 
+
 def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
     ''' inputs: client -- boto3 sagemaker-runtime client
                 endpoint_name -- AWS endpoint name (string)
                 input_image -- image for prediction (list)
-                seq_lengths -- sequence length for model prediction (float list)
+                seq_lengths -- sequence length for prediction (float list)
         outputs: a dictionary
     '''
     body = json.dumps({
@@ -86,19 +86,20 @@ def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
     ioc_response = client.invoke_endpoint(
         EndpointName=endpoint_name,
         Body=body,
-        ContentType="application/json"
+        ContentType='application/json'
     )
     response = ioc_response['Body'].read()
     data = json.loads(response)
     return data
 
+
 def parse_tensor_to_vocab_indices(data, seq_lengths):
-    """ inputs: data --  a dictionary of the model output
-                seq_lengths -- sequence length for model prediction (float list)
+    ''' inputs: data --  a dictionary of the model output
+                seq_lengths -- sequence length for prediction (float list)
         outputs: the note predictions from that output (integer list)
-    """
+    '''
     if type(data) != dict:
-        return "Wrong type"
+        return 'Wrong type'
     list_tensor = data['outputs']['fully_connected/BiasAdd']
     output = tf.convert_to_tensor(list_tensor, tf.float32)
     decoded, _ = tf.nn.ctc_greedy_decoder(output, seq_lengths)
@@ -112,7 +113,7 @@ def yolo_endpoint_pred(client, endpoint_name, content_type, body):
                 endpoint_name -- AWS endpoint name (string)
                 content_type -- image/jpeg for YOLO (string)
                 body -- request body (image bytes)
-        outputs: a list of dictionaries representing each label sorted by y coord
+        outputs: list of dictionaries representing each label sorted by y coord
     '''
     ioc_response = client.invoke_endpoint(
         EndpointName=endpoint_name,
@@ -157,8 +158,10 @@ def allowed_file(filename):
 
 
 ##############
-# App Routes #
+# APP ROUTES #
 ##############
+
+
 @app.route('/')
 def root():
     ''' returns the main page when the app is loaded
@@ -173,12 +176,12 @@ def confirm():
         returns the confirmation page
         outputs: rendered index HTML page
     '''
-    # Resets working directory and logs current location
+    # resets working directory and logs current location
     os.chdir(r'/home/hilnels')
     print('confirm:', os.getcwd())
 
     if request.method == 'POST':
-        # check if the post request has the file part
+        # checks if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
@@ -191,7 +194,9 @@ def confirm():
         if file and allowed_file(file.filename):
             global UPLOAD_FILENAME
             UPLOAD_FILENAME = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], UPLOAD_FILENAME))
+            file.save(os.path.join(
+                app.config['UPLOAD_FOLDER'], UPLOAD_FILENAME
+            ))
             print(UPLOAD_FILENAME)
 
         return render_template('confirm.html', filename=UPLOAD_FILENAME)
@@ -214,12 +219,12 @@ def predict():
         returns the result page with links to download files
         outputs: rendered index HTML page
     '''
-    # reset working directory and logs current location
+    # resets working directory and logs current location
     os.chdir(r'/home/hilnels')
     print('predict:', os.getcwd())
 
     if request.method == 'POST':
-        # check if user wants to upload a new image
+        # checks if user wants to upload a new image
         print(request.form)
         if request.form['button'] == 'Upload different image':
             return render_template('index.html')
@@ -230,7 +235,7 @@ def predict():
             title = 'my_music'
         print(title)
 
-        # read the dictionary
+        # reads the dictionary
         dict_file = open(VOCAB_PATH, 'r')
         dict_list = dict_file.read().splitlines()
         int2word = dict()
@@ -239,13 +244,9 @@ def predict():
             int2word[word_idx] = word
         dict_file.close()
 
-        # restore weights
-
         file_path = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
-        print("fname " + UPLOAD_FILENAME)
-        print("full_path  " + file_path)
 
-        # read in file_path
+        # reads in file_path
         raw_im = cv2.imread(file_path)
         retval, buffer = cv2.imencode('.jpg', raw_im)
         bytes_jpg = base64.b64encode(buffer)
@@ -257,17 +258,18 @@ def predict():
         if not split_images:
             print('NO PREDICTIONS...')
 
-        # output string
+        # defines output string
         predict_to_parse = ''
 
         for split_image in split_images:
             input_image, seq_lengths = semantic_input_preprocess(split_image)
-            data = semantic_endpoint_pred(client, "semantic", input_image, seq_lengths)
+            data = semantic_endpoint_pred(
+                client, 'semantic', input_image, seq_lengths
+            )
             vocab_indices = parse_tensor_to_vocab_indices(data, seq_lengths)
             for w in vocab_indices:
                 predict_to_parse += int2word[w]
                 predict_to_parse += '\n'
-
 
         if predict_to_parse == '':
             return render_template(
@@ -293,27 +295,31 @@ def predict():
         upload_filepath = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
         file_handle = open(upload_filepath, 'r')
 
-        bash_command = "/home/hilnels/bin/lilypond --pdf " + LY_FILENAME
+        bash_command = '/home/hilnels/bin/lilypond --pdf ' + LY_FILENAME
         subprocess.call(bash_command, shell=True)
 
-        # remove uploaded file
+        # removes uploaded file
         @after_this_request
         def remove_file(response):
             try:
                 os.remove(upload_filepath)
                 file_handle.close()
             except Exception as error:
-                app.logger.error("Error removing or closing downloaded file handle", error)
+                app.logger.error(
+                    'Error removing or closing downloaded file handle',
+                    error
+                )
             return response
 
         return render_template('result.html')
 
+
 @app.route('/download/<type>')
 def download(type):
-    ''' sends download files to user's local machine
-        outputs: output LilyPond file
+    ''' sends download file to user's local machine
+        outputs: LilyPond, PDF, or MIDI file
     '''
-    # reset working directory and logs current location
+    # resets working directory and logs current location
     os.chdir(r'/')
     print('download:', os.getcwd())
 
@@ -327,20 +333,19 @@ def download(type):
         download_filepath = DOWNLOAD_FOLDER + '/' + MIDI_FILENAME
         file_handle = open(download_filepath, 'r')
     else:
-        return render_template(
-            'invalid.html',
-            error='Oops!',
-            text='Something went wrong. Please try again.'
-        )
+        return invalid()
 
-    # remove lilypond
+    # removes file after download
     @after_this_request
     def remove_file_ly(response):
         try:
             os.remove(download_filepath)
             file_handle.close()
         except Exception as error:
-            app.logger.error("Error removing or closing downloaded file handle", error)
+            app.logger.error(
+                'Error removing or closing downloaded file handle',
+                error
+            )
         return response
 
     return send_file(
@@ -351,28 +356,37 @@ def download(type):
 
 @app.route('/about')
 def about():
+    ''' returns the about page
+        outputs: rendered about HTML page
+    '''
     return render_template('about.html')
 
 
 @app.route('/help')
 def help():
+    ''' returns the help page
+        outputs: rendered help HTML page
+    '''
     return render_template('help.html')
 
 
 @app.route('/invalid')
 def invalid():
+    ''' returns the general invlaid page
+        outputs: rendered invalid HTML page
+    '''
     return render_template(
         'invalid.html',
         error='Oops!',
         text='Something went wrong. Please try again.'
     )
 
-@app.route('/test')
-def test():
-    return invalid()
 
 @app.errorhandler(413)
 def error413(e):
+    ''' returns the large file size invlaid page
+        outputs: rendered invalid HTML page
+    '''
     return render_template(
         'invalid.html',
         error='Invalid Image',
@@ -383,6 +397,9 @@ def error413(e):
 
 @app.errorhandler(500)
 def error500(e):
+    ''' returns the general error invlaid page
+        outputs: rendered invalid HTML page
+    '''
     return render_template(
         'invalid.html',
         error='Oops!',
