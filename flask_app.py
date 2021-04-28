@@ -55,7 +55,9 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024    # 5 Mb limit
 
 
 def semantic_input_preprocess(image):
-    ''' inputs: image (cv2 format)
+    ''' TODO
+        
+        inputs: image (cv2 format)
         outputs: list format of opencv2 image, a single element float list
     '''
     image = ctc_utils.resize(image, IMAGE_RESIZE_HEIGHT)
@@ -69,7 +71,9 @@ def semantic_input_preprocess(image):
 
 
 def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
-    ''' inputs: client -- boto3 sagemaker-runtime client
+    ''' TODO
+        
+        inputs: client -- boto3 sagemaker-runtime client
                 endpoint_name -- AWS endpoint name (string)
                 input_image -- image for prediction (list)
                 seq_lengths -- sequence length for prediction (float list)
@@ -94,7 +98,9 @@ def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
 
 
 def parse_tensor_to_vocab_indices(data, seq_lengths):
-    ''' inputs: data --  a dictionary of the model output
+    ''' TODO
+        
+        inputs: data --  a dictionary of the model output
                 seq_lengths -- sequence length for prediction (float list)
         outputs: the note predictions from that output (integer list)
     '''
@@ -109,7 +115,9 @@ def parse_tensor_to_vocab_indices(data, seq_lengths):
 
 
 def yolo_endpoint_pred(client, endpoint_name, content_type, body):
-    ''' inputs: client -- boto3 sagemaker-runtime client
+    ''' TODO
+        
+        inputs: client -- boto3 sagemaker-runtime client
                 endpoint_name -- AWS endpoint name (string)
                 content_type -- image/jpeg for YOLO (string)
                 body -- request body (image bytes)
@@ -128,6 +136,7 @@ def yolo_endpoint_pred(client, endpoint_name, content_type, body):
 
 def split_to_lines(filename, preds):
     ''' splits a single image of sheet music into multiple images of each line
+        
         inputs: filename -- local path to image (string)
                 preds -- list of dictionaries with the keys:
                          x, y, width, height, conf
@@ -150,6 +159,7 @@ def split_to_lines(filename, preds):
 
 def allowed_file(filename):
     ''' confirms that the filetype is a valid file
+        
         inputs: filename including extension
         outputs: filename excluding extension
     '''
@@ -165,6 +175,7 @@ def allowed_file(filename):
 @app.route('/')
 def root():
     ''' returns the main page when the app is loaded
+        
         outputs: rendered index HTML page
     '''
     return render_template('index.html')
@@ -174,6 +185,7 @@ def root():
 def confirm():
     ''' checks that uploaded image is valid,
         returns the confirmation page
+        
         outputs: rendered index HTML page
     '''
     # resets working directory and logs current location
@@ -205,6 +217,7 @@ def confirm():
 @app.route('/send_img/<filename>')
 def send_img(filename):
     ''' returns the uploaded image on the confirmation page
+        
         inputs: filename -- the file name of the uploaded image
         outputs: user uploaded image
     '''
@@ -217,6 +230,7 @@ def predict():
         sends the uploaded image to the 2 neural nets for processing,
         calls the parser on the semantic output and creates download files,
         returns the result page with links to download files
+        
         outputs: rendered index HTML page
     '''
     # resets working directory and logs current location
@@ -317,6 +331,7 @@ def predict():
 @app.route('/download/<type>')
 def download(type):
     ''' sends download file to user's local machine
+        
         outputs: LilyPond, PDF, or MIDI file
     '''
     # resets working directory and logs current location
@@ -357,6 +372,7 @@ def download(type):
 @app.route('/about')
 def about():
     ''' returns the about page
+        
         outputs: rendered about HTML page
     '''
     return render_template('about.html')
@@ -365,6 +381,7 @@ def about():
 @app.route('/help')
 def help():
     ''' returns the help page
+        
         outputs: rendered help HTML page
     '''
     return render_template('help.html')
@@ -373,6 +390,7 @@ def help():
 @app.route('/invalid')
 def invalid():
     ''' returns the general invlaid page
+        
         outputs: rendered invalid HTML page
     '''
     return render_template(
@@ -385,6 +403,7 @@ def invalid():
 @app.errorhandler(413)
 def error413(e):
     ''' returns the large file size invlaid page
+        
         outputs: rendered invalid HTML page
     '''
     return render_template(
@@ -398,6 +417,7 @@ def error413(e):
 @app.errorhandler(500)
 def error500(e):
     ''' returns the general error invlaid page
+        
         outputs: rendered invalid HTML page
     '''
     return render_template(
@@ -407,5 +427,6 @@ def error500(e):
     ), 500
 
 
+# times out process
 if __name__ == '__main__':
     app.run(timeout = 0.5)

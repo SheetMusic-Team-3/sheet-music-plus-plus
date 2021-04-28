@@ -53,21 +53,21 @@
       <img id="main-logo" src="{{ url_for('static', filename='graphics/logo.svg') }}" alt="SheetMusic++ logo; treble clef followed by ++ in a blue hexagon">
       <h2>About</h2>
       <p>
-        This is a sheet music analyzer designed by a team of Pitzer College students in 2021. It allows you to take a picture or scan of any piece of sheet music you might have and turn it into 3 separate file types:
+        SheetMusic++ is a web application developed in 2021 by Kian Chamine, James Karsten, Hilary Nelson, and Jack Weiler that allows users to upload an image of sheet music for digitization into three separate formats. For detailed information on how to run the app, its limitations, and credits, please see the <a href="https://github.com/SheetMusic-Team-3/sheet-music-plus-plus#readme">README on GitHub</a>. The three output file types are:
       </p>
       <ol>
         <li>
-          PDF: This is a clean document of your music that can easily be stored and shared
+          PDF: This is a highly compatible document that can be read on most machines and physically printed. It has a small file size that allows for easy storage and sharing.
         </li>
         <li>
-          MIDI: This is a digital music file that can be read by programs such as GarageBand in order to edit notes and virtually play the piece as any instrument
+          LilyPond: This is a digital music composition markdown format (similar to LaTeX) that can be edited using any plain text editor. To compile it into sheet music, either <a href="http://lilypond.org/download.html">download LilyPond</a> and install it on your personal machine or copy and paste the code into an online editor such as <a href="http://lilybin.com">LilyBin</a> or <a href="https://hacklily.org">HackLily</a>.
         </li>
         <li>
-          LilyPond: This is a digital markup language that has a small file size and can easily be edited and then exported as a PDF, PNG, or MIDI file using a program that you install or through a free online compiler such as LilyBin
+          MIDI: This stands for Musical Instrument Digital Interface, which is a widely-used, editable music format that stores complex notation in a small file size. Both the notes and overall information such as tempo can be adjusted, and the track can be rendered using thousands of synthesized and sampled instruments. Programs such as <a href="https://www.apple.com/mac/garageband">GarageBand</a> and <a href="https://www.apple.com/logic-pro">Logic Pro</a> can edit and export MIDI tracks into various audio formats such as MP3 or WAV. There are also free online compilers such as <a href="https://signal.vercel.app">signal</a> and <a href="https://solmire.com/midieditor">SolMiRe</a> that can edit basic features of MIDI tracks. Read more <a href="https://blog.landr.com/what-is-midi">here</a>.
         </li>
       </ol>
       <p>
-        Our web app utilizes two models: an open-source semantic model designed to read an individual line of music and translate that to a semantic vocabulary, and a YOLO model that we use to separate multi-lined scores for the semantic model to read one by one. These separated lines are then parsed back together into our final PDF, MIDI, and LilyPond formats. 
+        Our web app utilizes two models: an open-source semantic model designed to read an individual line of music and translate that to a semantic vocabulary, and a YOLO model that we use to separate multi-lined scores for the semantic model to read one by one. These separated lines are then parsed back together into our final PDF, MIDI, and LilyPond formats.
       </p>
       </h2>
     </div>
