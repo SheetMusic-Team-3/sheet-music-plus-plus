@@ -15,7 +15,6 @@ import env
 import base64
 from PIL import Image
 import subprocess
-from subprocess import Popen, PIPE
 
 # disables TensorFlow INFO, WARNING, and ERROR messages from being printed
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -34,6 +33,7 @@ UPLOAD_FILENAME = ''
 DOWNLOAD_FILENAME = ''
 MIDI_FILENAME = ''
 PDF_FILNAME = ''
+LY_FILENAME = ''
 
 # TODO: Comment
 client = boto3.client(
@@ -408,4 +408,4 @@ def error500(e):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(timeout = 0.5)
