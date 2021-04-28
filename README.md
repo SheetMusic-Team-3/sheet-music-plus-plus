@@ -1,5 +1,5 @@
 # SheetMusic++
-<img src="logo.png" alt="SheetMusic++ logo" width="30%"/>
+<img src="logo.png" alt="SheetMusic++ logo" width="15%"/>
 
 SheetMusic++ is a web application that allows users to upload an image of sheet music for digitization into three separate formats: PDF, LilyPond, and MIDI. The back-end is comprised of two sequential neural networks that segment and detect individual notes, which are then parsed into these outputs (described in the [Usage](##Usage) section). This allows musicians to easily transcribe, edit, and listen to their sheet music.
 
