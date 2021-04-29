@@ -20,9 +20,6 @@ The app is run using the following process:
     1. MIDI: This stands for Musical Instrument Digital Interface, which is a widely-used, editable music format that stores complex notation in a small file size. Both the notes and overall information such as tempo can be adjusted, and the track can be rendered using thousands of synthesized and sampled instruments. Programs such as [GarageBand](https://www.apple.com/mac/garageband) and [Logic Pro](https://www.apple.com/logic-pro) can edit and export MIDI tracks into various audio formats such as MP3 or WAV. There are also free online compilers such as [signal](https://signal.vercel.app) and [SolMiRe](https://solmire.com/midieditor) that can edit basic features of MIDI tracks. Read more [here](https://blog.landr.com/what-is-midi).
 1. In order to restart the process with a different piece of music, click the "Analyze another piece of sheet music" button.
 
-## Running Locally
-In order to run this app locally, the entire repository must be downloaded and a virtual environment must be set up using the requirements in the Pipfile. Additionally, all of the modules included in the Flask app need to be installed. Finally, the neural networks need to be attached.
-
 ## Known Bugs & Limitations
 This app is in a V1 release, so all major known bugs have been resolved. However, there are some limitations worth noting:
 1. Any images that are oriented incorrectly, crooked, or warped often are unable to be read, which prompts the user to upload a new image. It is recommended to upload either a scanned image or a high-quality image taken in good lighting for optimal results.
