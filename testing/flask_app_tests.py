@@ -1,9 +1,17 @@
+import os
+import sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
+from flask_app import *
+
 import numpy as np
 import boto3
 import env
 import cv2
 from PIL import Image
-from flask_app import *
+
 
 # AWS SECRETS
 AWS_KEY = env.AWS_KEY
