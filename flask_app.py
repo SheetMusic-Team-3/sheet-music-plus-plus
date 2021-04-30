@@ -55,10 +55,10 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024    # 5 Mb limit
 
 
 def semantic_input_preprocess(image):
-    ''' TODO
-        
-        inputs: image (cv2 format)
-        outputs: list format of opencv2 image, a single element float list
+    ''' preprocesses eaach image segment before semantic model
+
+        inputs: cv2 image
+        output: list format of opencv2 image, a single element float list
     '''
     image = ctc_utils.resize(image, IMAGE_RESIZE_HEIGHT)
     image = ctc_utils.normalize(image)
@@ -71,13 +71,13 @@ def semantic_input_preprocess(image):
 
 
 def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
-    ''' TODO
-        
+    ''' processes image segments by sending to YOLO model
+
         inputs: client -- boto3 sagemaker-runtime client
                 endpoint_name -- AWS endpoint name (string)
                 input_image -- image for prediction (list)
                 seq_lengths -- sequence length for prediction (float list)
-        outputs: a dictionary
+        output: a dictionary
     '''
     body = json.dumps({
         'signature_name': 'predict',
@@ -98,11 +98,11 @@ def semantic_endpoint_pred(client, endpoint_name, input_image, seq_lengths):
 
 
 def parse_tensor_to_vocab_indices(data, seq_lengths):
-    ''' TODO
-        
+    ''' parses tensors into semantic vocabulary indices
+
         inputs: data --  a dictionary of the model output
                 seq_lengths -- sequence length for prediction (float list)
-        outputs: the note predictions from that output (integer list)
+        output: the note predictions from that output (integer list)
     '''
     if type(data) != dict:
         return 'Wrong type'
@@ -115,13 +115,13 @@ def parse_tensor_to_vocab_indices(data, seq_lengths):
 
 
 def yolo_endpoint_pred(client, endpoint_name, content_type, body):
-    ''' TODO
-        
+    ''' processes image by sending to YOLO model
+
         inputs: client -- boto3 sagemaker-runtime client
                 endpoint_name -- AWS endpoint name (string)
                 content_type -- image/jpeg for YOLO (string)
                 body -- request body (image bytes)
-        outputs: list of dictionaries representing each label sorted by y coord
+        output: list of dictionaries representing each label sorted by y coord
     '''
     ioc_response = client.invoke_endpoint(
         EndpointName=endpoint_name,
@@ -136,11 +136,11 @@ def yolo_endpoint_pred(client, endpoint_name, content_type, body):
 
 def split_to_lines(filename, preds):
     ''' splits a single image of sheet music into multiple images of each line
-        
+
         inputs: filename -- local path to image (string)
                 preds -- list of dictionaries with the keys:
                          x, y, width, height, conf
-        outputs: a list of cv2 images
+        output: a list of cv2 images
     '''
     pil_img = Image.open(filename)
     images = []
@@ -159,9 +159,9 @@ def split_to_lines(filename, preds):
 
 def allowed_file(filename):
     ''' confirms that the filetype is a valid file
-        
-        inputs: filename including extension
-        outputs: filename excluding extension
+
+        inputs: filename -- a string of filename including extension
+        output: a string of filename excluding extension
     '''
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -175,8 +175,8 @@ def allowed_file(filename):
 @app.route('/')
 def root():
     ''' returns the main page when the app is loaded
-        
-        outputs: rendered index HTML page
+
+        output: rendered index HTML page
     '''
     return render_template('index.html')
 
@@ -185,8 +185,8 @@ def root():
 def confirm():
     ''' checks that uploaded image is valid,
         returns the confirmation page
-        
-        outputs: rendered index HTML page
+
+        output: rendered index HTML page
     '''
     # resets working directory and logs current location
     os.chdir(r'/home/hilnels')
@@ -198,8 +198,7 @@ def confirm():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
+
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
@@ -217,9 +216,9 @@ def confirm():
 @app.route('/send_img/<filename>')
 def send_img(filename):
     ''' returns the uploaded image on the confirmation page
-        
+
         inputs: filename -- the file name of the uploaded image
-        outputs: user uploaded image
+        output: user uploaded image
     '''
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
@@ -230,8 +229,8 @@ def predict():
         sends the uploaded image to the 2 neural nets for processing,
         calls the parser on the semantic output and creates download files,
         returns the result page with links to download files
-        
-        outputs: rendered index HTML page
+
+        output: rendered index HTML page
     '''
     # resets working directory and logs current location
     os.chdir(r'/home/hilnels')
@@ -265,16 +264,16 @@ def predict():
         retval, buffer = cv2.imencode('.jpg', raw_im)
         bytes_jpg = base64.b64encode(buffer)
 
+        # processes image with YOLO model
         preds = yolo_endpoint_pred(client, 'yolov5', 'image/jpeg', bytes_jpg)
-
         split_images = split_to_lines(file_path, preds)
-
         if not split_images:
             print('NO PREDICTIONS...')
 
         # defines output string
         predict_to_parse = ''
 
+        # processes image segments with semantic model
         for split_image in split_images:
             input_image, seq_lengths = semantic_input_preprocess(split_image)
             data = semantic_endpoint_pred(
@@ -285,6 +284,7 @@ def predict():
                 predict_to_parse += int2word[w]
                 predict_to_parse += '\n'
 
+        # checks if output is empty
         if predict_to_parse == '':
             return render_template(
                 'invalid.html',
@@ -293,9 +293,11 @@ def predict():
                     Please try again with a new image.'
             )
 
+        # parses semantic output into LilyPond
         lilyPond = \
             sheet_music_parser.generate_music(predict_to_parse, title)
 
+        # sets file names
         os.chdir(DOWNLOAD_FOLDER)
         global LY_FILENAME
         LY_FILENAME = title + '.ly'
@@ -309,6 +311,7 @@ def predict():
         upload_filepath = UPLOAD_FOLDER + '/' + UPLOAD_FILENAME
         file_handle = open(upload_filepath, 'r')
 
+        # compiles LilyPond into pdf and midi
         bash_command = '/home/hilnels/bin/lilypond --pdf ' + LY_FILENAME
         subprocess.call(bash_command, shell=True)
 
@@ -331,13 +334,14 @@ def predict():
 @app.route('/download/<type>')
 def download(type):
     ''' sends download file to user's local machine
-        
-        outputs: LilyPond, PDF, or MIDI file
+
+        output: LilyPond, PDF, or MIDI file
     '''
     # resets working directory and logs current location
     os.chdir(r'/')
     print('download:', os.getcwd())
 
+    # selects corrct file type based on user input
     if type == 'ly':
         download_filepath = DOWNLOAD_FOLDER + '/' + LY_FILENAME
         file_handle = open(download_filepath, 'r')
@@ -372,8 +376,8 @@ def download(type):
 @app.route('/about')
 def about():
     ''' returns the about page
-        
-        outputs: rendered about HTML page
+
+        output: rendered about HTML page
     '''
     return render_template('about.html')
 
@@ -381,8 +385,8 @@ def about():
 @app.route('/help')
 def help():
     ''' returns the help page
-        
-        outputs: rendered help HTML page
+
+        output: rendered help HTML page
     '''
     return render_template('help.html')
 
@@ -390,8 +394,8 @@ def help():
 @app.route('/invalid')
 def invalid():
     ''' returns the general invlaid page
-        
-        outputs: rendered invalid HTML page
+
+        output: rendered invalid HTML page
     '''
     return render_template(
         'invalid.html',
@@ -403,8 +407,8 @@ def invalid():
 @app.errorhandler(413)
 def error413(e):
     ''' returns the large file size invlaid page
-        
-        outputs: rendered invalid HTML page
+
+        output: rendered invalid HTML page
     '''
     return render_template(
         'invalid.html',
@@ -417,8 +421,8 @@ def error413(e):
 @app.errorhandler(500)
 def error500(e):
     ''' returns the general error invlaid page
-        
-        outputs: rendered invalid HTML page
+
+        output: rendered invalid HTML page
     '''
     return render_template(
         'invalid.html',
@@ -429,4 +433,4 @@ def error500(e):
 
 # times out process
 if __name__ == '__main__':
-    app.run(timeout = 0.5)
+    app.run(timeout=0.5)
