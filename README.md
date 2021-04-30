@@ -27,6 +27,62 @@ This app is in a V1 release, so all major known bugs have been resolved. However
 
 We invite users to report any new issues [here](https://github.com/SheetMusic-Team-3/MVP/issues).
 
+## File Structures
+### Python Anywhere
+<pre>
+.
+|
++-- env.py
++-- flask_app.py
+|
++-- [downloads]
+|
++-- [scripts]
+|   |
+|   +-- ctc_utils.py
+|   +-- sheet_music_parser.py
+|   +-- vocabulary_semantic.py
+|   +-- [__pycache__]
+|
++-- [static]
+|   |
+|   +-- [css]
+|   |   |
+|   |   +-- bulma.css
+|   |   +-- main.css
+|   |
+|   +-- [graphics]
+|       |
+|       +-- apple-logo-152.png
+|       +-- apple-logo-167.png
+|       +-- apple-logo-180.png
+|       +-- invalid.svg
+|       +-- logo.png
+|       +-- logo.svg
+|
++-- [templates]
+|   |
+|   +-- about.html
+|   +-- confirm.html
+|   +-- help.html
+|   +-- index.html
+|   +-- invalid.html
+|   +-- result.html
+|
++-- [testing]
+|   |
+|   +-- flask_app_tests.py
+|   +-- one-line-test.png
+|   +-- test.png
+|
++-- [uploads]
++-- [web-tools]
+</pre>
+
+### Amazon Web Services
+<pre>
+</pre>
+
 ## Credits
 It utilizes a [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/abs/1506.02640) model, developed in 2016 by Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi, to segment the image into lines. It utilizes a [End-to-End Neural Optical Music Recognition of Monophonic Scores](https://www.mdpi.com/2076-3417/8/4/606/htm) model, developed in 2018 Jorge Calvo-Zaragoza and David Rizo, to perform the note recognition. The web app is based off the open-source code [web-omr](https://github.com/liuhh02/web-omr), published in 2019 by liuhh02.
 
