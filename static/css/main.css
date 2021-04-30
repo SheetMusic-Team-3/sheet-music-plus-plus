@@ -15,7 +15,7 @@
 
     --regular-font: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
 
-    --progress-stroke: .1em;
+    --progress-stroke: .1rem;
 }
 
 html {
@@ -166,6 +166,7 @@ li {
     border-width: 0 var(--progress-stroke) var(--progress-stroke);
 }
 
+
 /* ----------------------
    IMAGE CONFIRMATION
 ---------------------- */
@@ -192,6 +193,21 @@ li {
     border: 3px solid var(--dark);
     border-radius: 1rem;
     color: var(--dark);
+}
+
+#confirm-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+#confirm-submit {
+    order: 2;
+    margin: 0 1.5rem;
+}
+
+#confirm-back {
+    order: 1;
+    margin: 0 1.5rem;
 }
 
 
@@ -311,6 +327,16 @@ li {
 
 #restart {
     margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+    #downloads {
+        flex-direction: column;
+    }
+
+    #downloads .download-item {
+        padding: 1rem 2rem;
+    }
 }
 
 

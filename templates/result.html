@@ -3,10 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="sheet, music, plus, analyzer, deep, machine, learning, lilypond, pdf, midi">
+  <meta name="description" content="SheetMusic++ allows users to upload an image of sheet music for digitization into LilyPond, PDF, and MIDI.">
   <title>SheetMusic++</title>
+
   <!-- Includes both relative links (to run locally) and variable links (to run on server) -->
   <link rel="shortcut icon" href="{{ url_for('static', filename='graphics/logo.svg') }}" type="image/svg+xml">
   <link rel="shortcut icon" href="../static/graphics/logo.svg" type="image/svg+xml">
+
+  <link rel="sapple-touch-icon" sizes="152x152" href="{{ url_for('static', filename='graphics/logo-152.svg') }}" type="image/svg+xml">
+  <link rel="sapple-touch-icon" sizes="167x167" href="{{ url_for('static', filename='graphics/logo-167.svg') }}" type="image/svg+xml">
+  <link rel="sapple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='graphics/logo-180.svg') }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" sizes="152x152" href="../static/graphics/logo-152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="../static/graphics/logo-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../static/graphics/logo-152.png">
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="../static/css/bulma.css">
@@ -25,11 +36,6 @@
               SheetMusic++
             </h1>
           </a>
-          <span class="navbar-burger burger" data-target="navbarMenuHeroC">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
         </div>
         <div id="navbarMenuHeroC" class="navbar-menu">
           <div class="navbar-end">
@@ -56,7 +62,7 @@
             <input class="button" type="submit" value="Download PDF">
           </form>
           <p>
-            Read your music with PDF
+            Read & share your music with PDF
           </p>
         </div>
 
@@ -65,7 +71,8 @@
             <input class="button" type="submit" value="Download LilyPond">
           </form>
           <p>
-            Edit your music with LilyPond <a href="http://lilypond.org/introduction.html" target="_blank">(see more)</a>
+            Edit your music with LilyPond<br/>
+            <a href="http://lilypond.org/introduction.html" target="_blank">(see more)</a>
           </p>
         </div>
 
@@ -74,7 +81,8 @@
             <input class="button" type="submit" value="Download MIDI">
           </form>
           <p>
-            Listen to your music with MIDI <a href="https://blog.landr.com/what-is-midi/" target="_blank">(see more)</a>
+            Listen to your music with MIDI<br/>
+            <a href="https://blog.landr.com/what-is-midi/" target="_blank">(see more)</a>
           </p>
         </div>
       </div>

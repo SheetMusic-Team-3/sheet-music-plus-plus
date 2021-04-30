@@ -25,11 +25,6 @@
               SheetMusic++
             </h1>
           </a>
-          <span class="navbar-burger burger" data-target="navbarMenuHeroC">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
         </div>
         <div id="navbarMenuHeroC" class="navbar-menu">
           <div class="navbar-end">
@@ -61,8 +56,10 @@
         </label>
         <img id="confirmation-image" src="{{ url_for('send_img', filename=filename) }}" alt="Uploaded image preview">
         <br/>
-        <input class="button secondary" type="submit" name="button" value="Upload different image">
-        <input class="button" type="submit" name="button" value="Confirm">
+        <div id="confirm-buttons">
+          <input id="confirm-submit" class="button" type="submit" name="button" value="Confirm">
+          <input id="confirm-back" class="button secondary" type="submit" name="button" value="Upload different image">
+        </div>
       </form>
 
     </div>
@@ -79,6 +76,5 @@
   </div>
 
 </section>
-
 </body>
 </html>
