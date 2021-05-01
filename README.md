@@ -80,9 +80,7 @@ We invite users to report any new issues [here](https://github.com/SheetMusic-Te
 </pre>
 
 ### Amazon Web Services
-<pre>
 The semantic-inference.py and yolo-inference.py files sit within their own code folders on an AWS Sagemaker Notebook instance that gets copied over onto the provisioned compute instance for the deployed endpoint. The code folder for the music model includes the semantic-inference.py file as well as a requirements.txt which specifies the module versions for the Compute instance. The code folder for the YOLO model is the yolov5 folder from https://github.com/ultralytics/yolov5, but we replace the detect.py with the yolo-inference.py. When an endpoint is triggered, the inference script is run on the provisioned server.
-</pre>
 
 ## Credits
 It utilizes a [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/abs/1506.02640) model, developed in 2016 by Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi, to segment the image into lines. It utilizes a [End-to-End Neural Optical Music Recognition of Monophonic Scores](https://www.mdpi.com/2076-3417/8/4/606/htm) model, developed in 2018 Jorge Calvo-Zaragoza and David Rizo, to perform the note recognition. The web app is based off the open-source code [web-omr](https://github.com/liuhh02/web-omr), published in 2019 by liuhh02.
