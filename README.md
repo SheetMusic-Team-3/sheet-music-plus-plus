@@ -81,6 +81,7 @@ We invite users to report any new issues [here](https://github.com/SheetMusic-Te
 
 ### Amazon Web Services
 <pre>
+The semantic-inference.py and yolo-inference.py files sit within their own code folders on an AWS Sagemaker Notebook instance that gets copied over onto the provisioned compute instance for the deployed endpoint. The code folder for the music model includes the semantic-inference.py file as well as a requirements.txt which specifies the module versions for the Compute instance. The code folder for the YOLO model is the yolov5 folder from https://github.com/ultralytics/yolov5, but we replace the detect.py with the yolo-inference.py. When an endpoint is triggered, the inference script is run on the provisioned server.
 </pre>
 
 ## Credits
