@@ -5,12 +5,13 @@ from PIL import Image
 import tensorflow as tf
 import requests
 
+
 def sparse_tensor_to_strs(sparse_tensor):
     indices = sparse_tensor[0][0]
     values = sparse_tensor[0][1]
     dense_shape = sparse_tensor[0][2]
 
-    strs = [ [] for i in range(dense_shape[0]) ]
+    strs = [[] for i in range(dense_shape[0])]
 
     string = []
     ptr = 0
@@ -30,19 +31,23 @@ def sparse_tensor_to_strs(sparse_tensor):
 
     return strs
 
+
 def _process_input(data, context):
-    """ Pre-process request input before it is sent to TensorFlow Serving REST API
+    """ pre-process request input before it is sent to
+        TensorFlow Serving REST API
     Args:
         data (obj): the request data, in format of dict or string
-        context (Context): an object containing request and configuration details
+        context (Context): object containing request and configuration details
     Returns:
         (dict): a JSON-serializable dict that contains request body and headers
     """
     if context.request_content_type == 'application/json':
         data = data.read().decode("utf-8")
-        return data if len(data) else ''    
+        return data if len(data) else ''
     raise ValueError('{{"error": "unsupported content type {}"}}'.format(
-            context.request_content_type or "unknown"))
+        context.request_content_type or "unknown"
+    ))
+
 
 def _process_output(data, context):
     if data.status_code != 200:
@@ -64,7 +69,7 @@ def handler(data, context):
     """Post-process TensorFlow Serving output before it is returned to the client.
     Args:
         data (obj): the TensorFlow serving response
-        context (Context): an object containing request and configuration details
+        context (Context): object containing request and configuration details
     Returns:
         (bytes, string): data to return to client, response content type
     """
