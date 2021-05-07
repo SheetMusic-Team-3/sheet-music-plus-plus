@@ -1,13 +1,13 @@
 # SheetMusic++
 <img src="static/graphics/logo.png" alt="SheetMusic++ logo" width="15%"/>
 
-SheetMusic++ is a web application that allows users to upload an image of sheet music for digitization into three separate formats: PDF, LilyPond, and MIDI. The back-end is comprised of two sequential neural networks that segment and detect individual notes, which are then parsed into these outputs (described in the [Usage](##Usage) section). This allows musicians to easily transcribe, edit, and listen to their sheet music.
+SheetMusic++ is a web application that allows users to upload an image of sheet music for digitization into three separate formats: PDF, LilyPond, and MIDI. The back-end is comprised of two sequential neural networks that segment and detect individual notes, which are then parsed into these outputs (described in the Usage section). This allows musicians to easily transcribe, edit, and listen to their sheet music.
 
 ## About
-This app was created in 2021 by Kian Chamine, James Karsten, Hilary Nelson, and Jack Weiler, a group of students at Pitzer College enrolled in Software Development at Harvey Mudd College. A detailed report that describes the motivations, functional requirements, architecture, algorithms, testing, and limitations can be found [here]().
+This app was created in 2021 by Kian Chamine, James Karsten, Hilary Nelson, and Jack Weiler, a group of students at Pitzer College enrolled in Software Development at Harvey Mudd College. A detailed report that describes the motivations, functional requirements, architecture, algorithms, testing, and limitations can be found [here](https://drive.google.com/file/d/1LKn9RH5OBq0s5nwOQoA6K3ehEhGPbUqs/view?usp=sharing).
 
 ## Usage
-This app is deployed with Python Anywhere and can be accessed via the following link: [www.sheetmusicplusplus.com](https://www.sheetmusicplusplus.com). Note that in order to reduce costs, the AWS endpoints are currently shut down, so users cannot currently access 
+This app is deployed with Python Anywhere and can be accessed via the following link: [www.sheetmusicplusplus.com](https://www.sheetmusicplusplus.com). Note that in order to reduce costs, the AWS endpoints are currently shut down, so users cannot currently proceed to the results page.
 
 The app is run using the following process:
 1. Use the file browser to select a JPG or PNG image.
@@ -80,7 +80,7 @@ We invite users to report any new issues [here](https://github.com/SheetMusic-Te
 </pre>
 
 ### Amazon Web Services
-The semantic-inference.py and yolo-inference.py files sit within their own code folders on an AWS Sagemaker Notebook instance that gets copied over onto the provisioned compute instance for the deployed endpoint. The code folder for the music model includes the semantic-inference.py file as well as a requirements.txt which specifies the module versions for the Compute instance. The code folder for the YOLO model is the yolov5 folder from https://github.com/ultralytics/yolov5, but we replace the detect.py with the yolo-inference.py. When an endpoint is triggered, the inference script is run on the provisioned server.
+The inference.py and yolo-inference.py files sit within their own code folders on an AWS Sagemaker Notebook instance that gets copied over onto the provisioned compute instance for the deployed endpoint. These scripts are in the aws-scripts folder in this repository, but are not included with the rest of the code on Python Anywhere. The code folder for the music model includes the inference.py file as well as a requirements.txt, which specifies the module versions for the compute instance. The code folder for the YOLO model is the yolov5 folder from https://github.com/ultralytics/yolov5, but we replace the detect.py with the yolo-inference.py. When an endpoint is triggered, the inference script is run on the provisioned server.
 
 ## Credits
 It utilizes a [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/abs/1506.02640) model, developed in 2016 by Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi, to segment the image into lines. It utilizes a [End-to-End Neural Optical Music Recognition of Monophonic Scores](https://www.mdpi.com/2076-3417/8/4/606/htm) model, developed in 2018 Jorge Calvo-Zaragoza and David Rizo, to perform the note recognition. The web app is based off the open-source code [web-omr](https://github.com/liuhh02/web-omr), published in 2019 by liuhh02.
